@@ -183,7 +183,7 @@ const App = () => {
             <div className="w-32 h-32 md:w-40 md:h-40 rounded-3xl overflow-hidden shadow-2xl ring-4 ring-white">
               {/* Placeholder for the user's photo from the CV */}
               <img 
-                src="/2--.JPG" 
+                src="utils/2--.JPG" 
                 alt="MD. MAHEDY HASAN NAIEM"
                 className="w-full h-full object-cover"
               />
