@@ -109,6 +109,7 @@ const App = () => {
   const [qaMode, setQaMode] = useState<'functional' | 'api' | 'performance'>('functional');
   const [isTestRunning, setIsTestRunning] = useState(false);
   const [testRunStatus, setTestRunStatus] = useState<'idle' | 'passed'>('idle');
+  const [testStep, setTestStep] = useState(-1);
   const { scrollYProgress } = useScroll();
   const progressScale = useSpring(scrollYProgress, { stiffness: 110, damping: 26, restDelta: 0.001 });
 
@@ -293,7 +294,19 @@ const App = () => {
     if (isTestRunning) return;
     setIsTestRunning(true);
     setTestRunStatus('idle');
-    window.setTimeout(() => { setIsTestRunning(false); setTestRunStatus('passed'); }, 1450);
+    setTestStep(0);
+    let currentStep = 0;
+    const timer = window.setInterval(() => {
+      currentStep += 1;
+      if (currentStep >= activeQaMode.checks.length) {
+        window.clearInterval(timer);
+        setTestStep(activeQaMode.checks.length);
+        setIsTestRunning(false);
+        setTestRunStatus('passed');
+      } else {
+        setTestStep(currentStep);
+      }
+    }, 720);
   };
   const commandItems = [
     { label: 'About me', hint: 'PROFILE', href: '#about' },
@@ -491,10 +504,14 @@ const App = () => {
           </div>
           <div className="qa-deck-grid rounded-[2rem] border border-white/10 p-5 md:p-8">
             <div className="flex flex-col">
-              <div className="grid grid-cols-3 gap-2 rounded-2xl bg-white/5 p-1.5">{(Object.keys(qaModes) as Array<keyof typeof qaModes>).map((mode) => <button key={mode} onClick={() => { setQaMode(mode); setTestRunStatus('idle'); }} className={cn('rounded-xl px-2 py-3 text-xs font-bold transition-all', qaMode === mode ? 'bg-white text-slate-950 shadow-lg' : 'text-slate-400 hover:text-white')}>{qaModes[mode].label}</button>)}</div>
+              <div className="grid grid-cols-3 gap-2 rounded-2xl bg-white/5 p-1.5">{(Object.keys(qaModes) as Array<keyof typeof qaModes>).map((mode) => <button disabled={isTestRunning} key={mode} onClick={() => { setQaMode(mode); setTestRunStatus('idle'); setTestStep(-1); }} className={cn('rounded-xl px-2 py-3 text-xs font-bold transition-all disabled:cursor-wait disabled:opacity-50', qaMode === mode ? 'bg-white text-slate-950 shadow-lg' : 'text-slate-400 hover:text-white')}>{qaModes[mode].label}</button>)}</div>
               <div className="mt-8 flex items-center gap-3"><span className={cn('qa-mode-dot', `qa-dot-${activeQaMode.color}`)} /><div><p className="font-mono text-[10px] font-bold tracking-[.2em] text-slate-500">TEST RUN / {activeQaMode.code}</p><h3 className="mt-1 text-xl font-bold text-white">{activeQaMode.title}</h3></div></div>
-              <div className="mt-8 space-y-4">{activeQaMode.checks.map((check, index) => <motion.div key={`${qaMode}-${check}`} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: index * .08 }} className="flex items-center gap-3 text-sm text-slate-300"><span className="qa-check-number">0{index + 1}</span>{check}<CheckCircle2 className="ml-auto h-4 w-4 text-emerald-400" /></motion.div>)}</div>
-              <button onClick={runTestSimulation} disabled={isTestRunning} className="qa-run-button mt-auto"><span className={isTestRunning ? 'qa-running-spinner' : ''}>{isTestRunning ? <Activity className="h-4 w-4" /> : <Play className="h-4 w-4 fill-current" />}</span>{isTestRunning ? 'Running checks…' : testRunStatus === 'passed' ? 'Run again' : 'Run test simulation'}</button>
+              <div className="mt-8 space-y-4">{activeQaMode.checks.map((check, index) => {
+                const isActive = isTestRunning && index === testStep;
+                const isPassed = testRunStatus === 'passed' || (isTestRunning && index < testStep);
+                return <motion.div key={`${qaMode}-${check}`} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: index * .08 }} className={cn('qa-check-row flex items-center gap-3 text-sm', isPassed ? 'is-passed text-slate-200' : isActive ? 'is-active text-white' : 'text-slate-500')}><span className="qa-check-number">0{index + 1}</span><span className="flex-1">{check}</span>{isPassed ? <CheckCircle2 className="h-4 w-4 text-emerald-400" /> : isActive ? <Activity className="qa-running-spinner h-4 w-4 text-cyan-300" /> : <span className="font-mono text-[9px] tracking-wider">QUEUED</span>}</motion.div>;
+              })}</div>
+              <div className="mt-auto"><div className="qa-test-progress"><motion.div animate={{ width: `${testRunStatus === 'passed' ? 100 : Math.max(0, testStep) / activeQaMode.checks.length * 100}%` }} /></div><button onClick={runTestSimulation} disabled={isTestRunning} className="qa-run-button mt-4 w-full"><span className={isTestRunning ? 'qa-running-spinner' : ''}>{isTestRunning ? <Activity className="h-4 w-4" /> : <Play className="h-4 w-4 fill-current" />}</span>{isTestRunning ? `Checking ${testStep + 1} of ${activeQaMode.checks.length}…` : testRunStatus === 'passed' ? 'Run again' : 'Run test simulation'}</button></div>
             </div>
             <div className={cn('qa-visualizer', `qa-visualizer-${activeQaMode.color}`, isTestRunning && 'is-running')}>
               <div className="qa-visualizer-top"><span className="flex gap-1"><i /><i /><i /></span><span>{activeQaMode.code} / LIVE</span><span className="qa-live-indicator">ONLINE</span></div>
