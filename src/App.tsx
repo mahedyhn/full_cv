@@ -460,7 +460,7 @@ const App = () => {
             <div className="aspect-[1/1.4] w-full bg-slate-200 relative">
               {/* Replace the src with actual PDF link when uploaded */}
               <iframe
-  src="https://drive.google.com/file/d/1EZtUivvBdJDjme7UtjFDofoxnqxM8NjV/preview"
+  src="https://drive.google.com/file/d/1VNbp2TUehz00myhDRB67pgjUPCKPRTIv/preview"
                 className="w-full h-full border-none"
                 title="Resume Preview"
               ></iframe>
