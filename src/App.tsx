@@ -17,7 +17,9 @@ import {
   Layers, 
   Award, 
   CheckCircle2,
-  GraduationCap
+  GraduationCap,
+  AlertTriangle,
+  RotateCcw
 } from 'lucide-react';
 
 const GithubIcon = ({ className }: { className?: string }) => (
@@ -68,6 +70,9 @@ const App = () => {
   const [contactForm, setContactForm] = useState({ name: '', email: '', message: '' });
   const [formStatus, setFormStatus] = useState('');
   const [isBooting, setIsBooting] = useState(true);
+  const [severity, setSeverity] = useState('');
+  const [priority, setPriority] = useState('');
+  const [triageResult, setTriageResult] = useState<'correct' | 'review' | ''>('');
   const { scrollYProgress } = useScroll();
   const progressScale = useSpring(scrollYProgress, { stiffness: 110, damping: 26, restDelta: 0.001 });
 
@@ -219,6 +224,10 @@ const App = () => {
     setContactForm({ name: '', email: '', message: '' });
   };
 
+  const checkTriage = () => {
+    setTriageResult(severity === 'High' && priority === 'Urgent' ? 'correct' : 'review');
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-blue-100">
       <AnimatePresence>{isBooting && <QualityBoot complete={() => setIsBooting(false)} />}</AnimatePresence>
@@ -239,6 +248,7 @@ const App = () => {
             <a href="#skills" className="hover:text-blue-600 transition-colors">Skills</a>
             <a href="#experience" className="hover:text-blue-600 transition-colors">Experience</a>
             <a href="#projects" className="hover:text-blue-600 transition-colors">Projects</a>
+            <a href="#qa-lab" className="hover:text-blue-600 transition-colors">QA Lab</a>
             <a href="#resume" className="hover:text-blue-600 transition-colors">Resume</a>
             <a href="#contact" className="hover:text-blue-600 transition-colors">Contact</a>
           </div>
@@ -470,6 +480,40 @@ const App = () => {
               ))}
             </motion.div>
           </AnimatePresence>
+        </div>
+      </section>
+
+      {/* Interactive QA Lab */}
+      <section id="qa-lab" className="qa-lab-section py-20 px-4">
+        <div className="max-w-5xl mx-auto">
+          <div className="mb-10 text-center">
+            <p className="text-xs font-black tracking-[0.25em] text-cyan-300">INTERACTIVE QA LAB</p>
+            <h2 className="mt-3 text-4xl font-bold text-white">Can you triage this bug?</h2>
+            <p className="mx-auto mt-4 max-w-xl text-slate-400">A small look into how I turn product problems into clear, actionable QA decisions.</p>
+          </div>
+          <div className="qa-terminal rounded-[2rem] border border-white/10 p-5 shadow-2xl md:p-8">
+            <div className="mb-8 flex items-center gap-2 border-b border-white/10 pb-5"><span className="h-3 w-3 rounded-full bg-rose-400" /><span className="h-3 w-3 rounded-full bg-amber-300" /><span className="h-3 w-3 rounded-full bg-emerald-400" /><span className="ml-3 font-mono text-[10px] tracking-[0.18em] text-slate-500">BUG_REPORT_042</span></div>
+            <div className="grid gap-8 md:grid-cols-[1.2fr_.8fr] md:items-center">
+              <div>
+                <div className="mb-4 flex items-center gap-2 text-amber-300"><AlertTriangle className="h-5 w-5" /><span className="font-mono text-xs font-bold tracking-widest">LIVE SCENARIO</span></div>
+                <h3 className="text-2xl font-bold text-white">Payment succeeds, but no order is created.</h3>
+                <p className="mt-4 leading-relaxed text-slate-400">A customer completes payment at checkout and receives a successful gateway confirmation. The cart clears, but no order appears in their account or the admin panel.</p>
+                <div className="mt-6 grid grid-cols-3 gap-3 font-mono text-[10px] text-slate-400"><span className="rounded-lg border border-white/10 bg-white/5 px-3 py-2">MODULE: CHECKOUT</span><span className="rounded-lg border border-white/10 bg-white/5 px-3 py-2">STATUS: REPRODUCED</span><span className="rounded-lg border border-white/10 bg-white/5 px-3 py-2">USERS: AFFECTED</span></div>
+              </div>
+              <div className="rounded-2xl border border-white/10 bg-slate-950/60 p-5">
+                <p className="text-sm font-bold text-white">Your triage decision</p>
+                <p className="mt-5 text-xs font-bold uppercase tracking-widest text-slate-500">Severity</p>
+                <div className="mt-2 grid grid-cols-3 gap-2">{['Low', 'Medium', 'High'].map((level) => <button key={level} onClick={() => { setSeverity(level); setTriageResult(''); }} className={cn('rounded-lg border px-2 py-2 text-xs font-bold transition-all', severity === level ? 'border-cyan-300 bg-cyan-300 text-slate-950' : 'border-white/10 text-slate-400 hover:border-white/40')}>{level}</button>)}</div>
+                <p className="mt-5 text-xs font-bold uppercase tracking-widest text-slate-500">Priority</p>
+                <div className="mt-2 grid grid-cols-3 gap-2">{['Normal', 'High', 'Urgent'].map((level) => <button key={level} onClick={() => { setPriority(level); setTriageResult(''); }} className={cn('rounded-lg border px-2 py-2 text-xs font-bold transition-all', priority === level ? 'border-cyan-300 bg-cyan-300 text-slate-950' : 'border-white/10 text-slate-400 hover:border-white/40')}>{level}</button>)}</div>
+                <button disabled={!severity || !priority} onClick={checkTriage} className="mt-6 w-full rounded-xl bg-white py-3 text-sm font-black text-slate-950 transition-transform hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-30">VERIFY DECISION</button>
+                <AnimatePresence mode="wait">{triageResult && <motion.div key={triageResult} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className={cn('mt-4 rounded-xl p-3 text-sm', triageResult === 'correct' ? 'bg-emerald-400/15 text-emerald-200' : 'bg-amber-400/15 text-amber-100')}>
+                  {triageResult === 'correct' ? 'Exactly. This is high severity and urgent priority: revenue and customer trust are immediately at risk.' : 'Review it: payment without an order directly impacts revenue. I would classify this as High severity and Urgent priority.'}
+                </motion.div>}</AnimatePresence>
+                {triageResult && <button onClick={() => { setSeverity(''); setPriority(''); setTriageResult(''); }} className="mx-auto mt-3 flex items-center gap-1 text-xs font-bold text-slate-500 hover:text-white"><RotateCcw className="h-3 w-3" /> Try again</button>}
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
