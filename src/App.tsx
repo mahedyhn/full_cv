@@ -110,6 +110,10 @@ const App = () => {
   const [isTestRunning, setIsTestRunning] = useState(false);
   const [testRunStatus, setTestRunStatus] = useState<'idle' | 'passed'>('idle');
   const [testStep, setTestStep] = useState(-1);
+  const [checkoutQuantity, setCheckoutQuantity] = useState(1);
+  const [promoApplied, setPromoApplied] = useState(false);
+  const [paymentComplete, setPaymentComplete] = useState(false);
+  const [loggedFindings, setLoggedFindings] = useState<string[]>([]);
   const { scrollYProgress } = useScroll();
   const progressScale = useSpring(scrollYProgress, { stiffness: 110, damping: 26, restDelta: 0.001 });
 
@@ -283,31 +287,16 @@ const App = () => {
     }
   };
   const activeScenario = qaScenarios[scenarioIndex];
+  const bugHuntScore = loggedFindings.length;
+  const toggleFinding = (finding: string) => setLoggedFindings((current) => current.includes(finding) ? current.filter((item) => item !== finding) : [...current, finding]);
+  const resetBugHunt = () => { setCheckoutQuantity(1); setPromoApplied(false); setPaymentComplete(false); setLoggedFindings([]); };
   const qaModes = {
     functional: { label: 'Functional', code: 'UI-204', title: 'Checkout journey', metric: '12 / 12', metricLabel: 'checks passed', checks: ['Cart total recalculated', 'Promo code validated', 'Payment confirmation received'], color: 'cyan' },
     api: { label: 'API', code: 'API-188', title: 'Order service contract', metric: '200 OK', metricLabel: 'response verified', checks: ['Schema contract valid', 'Auth scope accepted', 'Payload persisted'], color: 'violet' },
     performance: { label: 'Performance', code: 'LOAD-76', title: 'Payment endpoint under load', metric: '284 ms', metricLabel: 'p95 response time', checks: ['500 virtual users', '0.02% error rate', 'Stable throughput'], color: 'amber' }
   };
   const activeQaMode = qaModes[qaMode];
-
-  const runTestSimulation = () => {
-    if (isTestRunning) return;
-    setIsTestRunning(true);
-    setTestRunStatus('idle');
-    setTestStep(0);
-    let currentStep = 0;
-    const timer = window.setInterval(() => {
-      currentStep += 1;
-      if (currentStep >= activeQaMode.checks.length) {
-        window.clearInterval(timer);
-        setTestStep(activeQaMode.checks.length);
-        setIsTestRunning(false);
-        setTestRunStatus('passed');
-      } else {
-        setTestStep(currentStep);
-      }
-    }, 720);
-  };
+  const runTestSimulation = () => {};
   const commandItems = [
     { label: 'About me', hint: 'PROFILE', href: '#about' },
     { label: 'Technical expertise', hint: 'SKILLS', href: '#skills' },
@@ -495,7 +484,7 @@ const App = () => {
       </section>
 
       {/* QA Flight Deck */}
-      <section className="qa-deck-section py-24 px-4">
+      <section className="hidden" aria-hidden="true">
         <div className="max-w-6xl mx-auto">
           <div className="mb-12 max-w-2xl">
             <p className="text-xs font-black tracking-[0.25em] text-cyan-300">THE QA FLIGHT DECK</p>
@@ -633,8 +622,23 @@ const App = () => {
         <div className="max-w-5xl mx-auto">
           <div className="mb-10 text-center">
             <p className="text-xs font-black tracking-[0.25em] text-cyan-300">INTERACTIVE QA LAB</p>
-            <h2 className="mt-3 text-4xl font-bold text-white">Can you triage this bug?</h2>
-            <p className="mx-auto mt-4 max-w-xl text-slate-400">A small look into how I turn product problems into clear, actionable QA decisions.</p>
+            <h2 className="mt-3 text-4xl font-bold text-white">Test it. Break it. Report it.</h2>
+            <p className="mx-auto mt-4 max-w-xl text-slate-400">Use the live checkout below like a QA tester, identify the defects, then log your findings.</p>
+          </div>
+          <div className="bug-hunt mb-8 rounded-[2rem] border border-cyan-300/15 p-5 md:p-7">
+            <div className="mb-6 flex flex-wrap items-center justify-between gap-3"><div><p className="font-mono text-[10px] font-black tracking-[.2em] text-cyan-300">BUG HUNT // SANDBOX</p><h3 className="mt-1 text-xl font-bold text-white">Mini checkout under test</h3></div><div className="rounded-full border border-cyan-300/20 bg-cyan-300/10 px-4 py-2 font-mono text-xs text-cyan-100">FINDINGS: {bugHuntScore} / 3</div></div>
+            <div className="grid gap-6 lg:grid-cols-[1.25fr_.75fr]">
+              <div className="bug-checkout rounded-2xl p-5">
+                <div className="flex items-center justify-between border-b border-slate-700 pb-4"><span className="font-bold text-white">Your cart</span><span className="text-xs text-slate-400">Only 2 items left</span></div>
+                <div className="flex items-center justify-between py-5"><div><p className="font-semibold text-white">QA Starter Kit</p><p className="text-sm text-slate-400">$40.00 each</p></div><div className="flex items-center gap-3 rounded-lg border border-slate-600 px-2 py-1"><button onClick={() => setCheckoutQuantity(Math.max(1, checkoutQuantity - 1))} aria-label="Decrease quantity">−</button><span className="w-4 text-center font-bold text-white">{checkoutQuantity}</span><button onClick={() => setCheckoutQuantity(checkoutQuantity + 1)} aria-label="Increase quantity">+</button></div></div>
+                <div className="flex gap-2 border-t border-slate-700 pt-4"><input readOnly value="PROMO20" className="min-w-0 flex-1 rounded-lg border border-slate-600 bg-slate-900 px-3 py-2 text-sm text-slate-300" /><button onClick={() => setPromoApplied(true)} className="rounded-lg bg-cyan-300 px-4 text-xs font-black text-slate-950">APPLY</button></div>
+                {promoApplied && <p className="mt-2 text-xs font-semibold text-emerald-300">Promo code applied — 20% discount active</p>}
+                <div className="mt-5 flex justify-between border-t border-slate-700 pt-4 font-bold text-white"><span>Total</span><span>${40 * checkoutQuantity}.00</span></div>
+                <button onClick={() => setPaymentComplete(true)} className="mt-5 w-full rounded-xl bg-white py-3 text-sm font-black text-slate-950">PAY ${40 * checkoutQuantity}.00</button>
+                {paymentComplete && <p className="mt-3 rounded-lg bg-emerald-400/10 p-3 text-sm text-emerald-200">Payment successful. Thank you for your order!</p>}
+              </div>
+              <div className="rounded-2xl border border-white/10 bg-slate-950/50 p-5"><p className="text-sm font-bold text-white">Log the defects you find</p><p className="mt-1 text-xs leading-relaxed text-slate-500">Interact with the checkout first. Select each issue you can reproduce.</p><div className="mt-5 space-y-3">{['Promo confirmation does not change the total', 'Quantity can exceed the stated stock', 'Payment succeeds but no order is created'].map((finding) => <button key={finding} onClick={() => toggleFinding(finding)} className={cn('w-full rounded-xl border p-3 text-left text-sm transition-all', loggedFindings.includes(finding) ? 'border-emerald-300 bg-emerald-300/10 text-emerald-100' : 'border-white/10 text-slate-400 hover:border-cyan-300/50 hover:text-white')}><span className="mr-2">{loggedFindings.includes(finding) ? '✓' : '○'}</span>{finding}</button>)}</div>{bugHuntScore === 3 && <motion.p initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="mt-4 rounded-xl bg-emerald-400/15 p-3 text-sm font-semibold text-emerald-100">Excellent bug report. You found all three reproducible issues.</motion.p>}<button onClick={resetBugHunt} className="mt-4 text-xs font-bold text-slate-500 hover:text-white">Reset sandbox</button></div>
+            </div>
           </div>
           <div className="qa-terminal rounded-[2rem] border border-white/10 p-5 shadow-2xl md:p-8">
             <div className="mb-8 flex items-center gap-2 border-b border-white/10 pb-5"><span className="h-3 w-3 rounded-full bg-rose-400" /><span className="h-3 w-3 rounded-full bg-amber-300" /><span className="h-3 w-3 rounded-full bg-emerald-400" /><span className="ml-3 font-mono text-[10px] tracking-[0.18em] text-slate-500">INCIDENT_QUEUE // {String(scenarioIndex + 1).padStart(2, '0')} OF {String(qaScenarios.length).padStart(2, '0')}</span><div className="ml-auto hidden gap-1 sm:flex">{qaScenarios.map((_, index) => <span key={index} className={cn('h-1.5 w-7 rounded-full transition-colors', index === scenarioIndex ? 'bg-cyan-300' : 'bg-white/10')} />)}</div></div>
