@@ -95,6 +95,12 @@ const qaScenarios = [
   }
 ];
 
+const bugHuntTasks = [
+  { product: 'QA Starter Kit', price: 40, stock: 2, code: 'PROMO20', promo: 'Promo code applied — 20% discount active', defects: ['Promo confirmation does not change the total', 'Quantity can exceed the stated stock', 'Payment succeeds but no order is created'] },
+  { product: 'API Testing Toolkit', price: 55, stock: 1, code: 'SAVE15', promo: 'Discount applied — 15% saved', defects: ['Discount confirmation does not change the total', 'Quantity can exceed the stated stock', 'Payment succeeds but no order is created'] },
+  { product: 'Performance Test Pack', price: 70, stock: 3, code: 'LOAD10', promo: 'Promo code applied — 10% discount active', defects: ['Promo confirmation does not change the total', 'Quantity can exceed the stated stock', 'Payment succeeds but no order is created'] }
+];
+
 const App = () => {
   const [activeProjectTab, setActiveProjectTab] = useState<'sqa' | 'dev'>('sqa');
   const [contactForm, setContactForm] = useState({ name: '', email: '', message: '' });
@@ -114,6 +120,9 @@ const App = () => {
   const [promoApplied, setPromoApplied] = useState(false);
   const [paymentComplete, setPaymentComplete] = useState(false);
   const [loggedFindings, setLoggedFindings] = useState<string[]>([]);
+  const [bugTaskIndex, setBugTaskIndex] = useState(0);
+  const [bugHuntFinished, setBugHuntFinished] = useState(false);
+  const [incidentFinished, setIncidentFinished] = useState(false);
   const { scrollYProgress } = useScroll();
   const progressScale = useSpring(scrollYProgress, { stiffness: 110, damping: 26, restDelta: 0.001 });
 
@@ -279,7 +288,11 @@ const App = () => {
     setTriageResult(isCorrect ? 'correct' : 'review');
     if (isCorrect) {
       window.setTimeout(() => {
-        setScenarioIndex((current) => (current + 1) % qaScenarios.length);
+        if (scenarioIndex === qaScenarios.length - 1) {
+          setIncidentFinished(true);
+        } else {
+          setScenarioIndex((current) => current + 1);
+        }
         setSeverity('');
         setPriority('');
         setTriageResult('');
@@ -287,9 +300,22 @@ const App = () => {
     }
   };
   const activeScenario = qaScenarios[scenarioIndex];
+  const activeBugTask = bugHuntTasks[bugTaskIndex];
   const bugHuntScore = loggedFindings.length;
-  const toggleFinding = (finding: string) => setLoggedFindings((current) => current.includes(finding) ? current.filter((item) => item !== finding) : [...current, finding]);
-  const resetBugHunt = () => { setCheckoutQuantity(1); setPromoApplied(false); setPaymentComplete(false); setLoggedFindings([]); };
+  const toggleFinding = (finding: string) => setLoggedFindings((current) => {
+    const next = current.includes(finding) ? current.filter((item) => item !== finding) : [...current, finding];
+    if (next.length === activeBugTask.defects.length && !current.includes(finding)) {
+      window.setTimeout(() => {
+        if (bugTaskIndex === bugHuntTasks.length - 1) {
+          setBugHuntFinished(true);
+        } else {
+          setBugTaskIndex((index) => index + 1);
+          setCheckoutQuantity(1); setPromoApplied(false); setPaymentComplete(false); setLoggedFindings([]);
+        }
+      }, 1300);
+    }
+    return next;
+  });
   const qaModes = {
     functional: { label: 'Functional', code: 'UI-204', title: 'Checkout journey', metric: '12 / 12', metricLabel: 'checks passed', checks: ['Cart total recalculated', 'Promo code validated', 'Payment confirmation received'], color: 'cyan' },
     api: { label: 'API', code: 'API-188', title: 'Order service contract', metric: '200 OK', metricLabel: 'response verified', checks: ['Schema contract valid', 'Auth scope accepted', 'Payload persisted'], color: 'violet' },
@@ -626,22 +652,22 @@ const App = () => {
             <p className="mx-auto mt-4 max-w-xl text-slate-400">Use the live checkout below like a QA tester, identify the defects, then log your findings.</p>
           </div>
           <div className="bug-hunt mb-8 rounded-[2rem] border border-cyan-300/15 p-5 md:p-7">
-            <div className="mb-6 flex flex-wrap items-center justify-between gap-3"><div><p className="font-mono text-[10px] font-black tracking-[.2em] text-cyan-300">BUG HUNT // SANDBOX</p><h3 className="mt-1 text-xl font-bold text-white">Mini checkout under test</h3></div><div className="rounded-full border border-cyan-300/20 bg-cyan-300/10 px-4 py-2 font-mono text-xs text-cyan-100">FINDINGS: {bugHuntScore} / 3</div></div>
+            <div className="mb-6 flex flex-wrap items-center justify-between gap-3"><div><p className="font-mono text-[10px] font-black tracking-[.2em] text-cyan-300">BUG HUNT // SANDBOX</p><h3 className="mt-1 text-xl font-bold text-white">Mini checkout under test</h3></div><div className="rounded-full border border-cyan-300/20 bg-cyan-300/10 px-4 py-2 font-mono text-xs text-cyan-100">TASK {bugTaskIndex + 1} / {bugHuntTasks.length} · FINDINGS: {bugHuntScore} / 3</div></div>
             <div className="grid gap-6 lg:grid-cols-[1.25fr_.75fr]">
               <div className="bug-checkout rounded-2xl p-5">
-                <div className="flex items-center justify-between border-b border-slate-700 pb-4"><span className="font-bold text-white">Your cart</span><span className="text-xs text-slate-400">Only 2 items left</span></div>
-                <div className="flex items-center justify-between py-5"><div><p className="font-semibold text-white">QA Starter Kit</p><p className="text-sm text-slate-400">$40.00 each</p></div><div className="flex items-center gap-3 rounded-lg border border-slate-600 px-2 py-1"><button onClick={() => setCheckoutQuantity(Math.max(1, checkoutQuantity - 1))} aria-label="Decrease quantity">−</button><span className="w-4 text-center font-bold text-white">{checkoutQuantity}</span><button onClick={() => setCheckoutQuantity(checkoutQuantity + 1)} aria-label="Increase quantity">+</button></div></div>
-                <div className="flex gap-2 border-t border-slate-700 pt-4"><input readOnly value="PROMO20" className="min-w-0 flex-1 rounded-lg border border-slate-600 bg-slate-900 px-3 py-2 text-sm text-slate-300" /><button onClick={() => setPromoApplied(true)} className="rounded-lg bg-cyan-300 px-4 text-xs font-black text-slate-950">APPLY</button></div>
-                {promoApplied && <p className="mt-2 text-xs font-semibold text-emerald-300">Promo code applied — 20% discount active</p>}
-                <div className="mt-5 flex justify-between border-t border-slate-700 pt-4 font-bold text-white"><span>Total</span><span>${40 * checkoutQuantity}.00</span></div>
-                <button onClick={() => setPaymentComplete(true)} className="mt-5 w-full rounded-xl bg-white py-3 text-sm font-black text-slate-950">PAY ${40 * checkoutQuantity}.00</button>
+                <div className="flex items-center justify-between border-b border-slate-700 pb-4"><span className="font-bold text-white">Your cart</span><span className="text-xs text-slate-400">Only {activeBugTask.stock} items left</span></div>
+                <div className="flex items-center justify-between py-5"><div><p className="font-semibold text-white">{activeBugTask.product}</p><p className="text-sm text-slate-400">${activeBugTask.price}.00 each</p></div><div className="flex items-center gap-3 rounded-lg border border-slate-600 px-2 py-1"><button disabled={bugHuntFinished} onClick={() => setCheckoutQuantity(Math.max(1, checkoutQuantity - 1))} aria-label="Decrease quantity">−</button><span className="w-4 text-center font-bold text-white">{checkoutQuantity}</span><button disabled={bugHuntFinished} onClick={() => setCheckoutQuantity(checkoutQuantity + 1)} aria-label="Increase quantity">+</button></div></div>
+                <div className="flex gap-2 border-t border-slate-700 pt-4"><input readOnly value={activeBugTask.code} className="min-w-0 flex-1 rounded-lg border border-slate-600 bg-slate-900 px-3 py-2 text-sm text-slate-300" /><button disabled={bugHuntFinished} onClick={() => setPromoApplied(true)} className="rounded-lg bg-cyan-300 px-4 text-xs font-black text-slate-950">APPLY</button></div>
+                {promoApplied && <p className="mt-2 text-xs font-semibold text-emerald-300">{activeBugTask.promo}</p>}
+                <div className="mt-5 flex justify-between border-t border-slate-700 pt-4 font-bold text-white"><span>Total</span><span>${activeBugTask.price * checkoutQuantity}.00</span></div>
+                <button disabled={bugHuntFinished} onClick={() => setPaymentComplete(true)} className="mt-5 w-full rounded-xl bg-white py-3 text-sm font-black text-slate-950">PAY ${activeBugTask.price * checkoutQuantity}.00</button>
                 {paymentComplete && <p className="mt-3 rounded-lg bg-emerald-400/10 p-3 text-sm text-emerald-200">Payment successful. Thank you for your order!</p>}
               </div>
-              <div className="rounded-2xl border border-white/10 bg-slate-950/50 p-5"><p className="text-sm font-bold text-white">Log the defects you find</p><p className="mt-1 text-xs leading-relaxed text-slate-500">Interact with the checkout first. Select each issue you can reproduce.</p><div className="mt-5 space-y-3">{['Promo confirmation does not change the total', 'Quantity can exceed the stated stock', 'Payment succeeds but no order is created'].map((finding) => <button key={finding} onClick={() => toggleFinding(finding)} className={cn('w-full rounded-xl border p-3 text-left text-sm transition-all', loggedFindings.includes(finding) ? 'border-emerald-300 bg-emerald-300/10 text-emerald-100' : 'border-white/10 text-slate-400 hover:border-cyan-300/50 hover:text-white')}><span className="mr-2">{loggedFindings.includes(finding) ? '✓' : '○'}</span>{finding}</button>)}</div>{bugHuntScore === 3 && <motion.p initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="mt-4 rounded-xl bg-emerald-400/15 p-3 text-sm font-semibold text-emerald-100">Excellent bug report. You found all three reproducible issues.</motion.p>}<button onClick={resetBugHunt} className="mt-4 text-xs font-bold text-slate-500 hover:text-white">Reset sandbox</button></div>
+              <div className="rounded-2xl border border-white/10 bg-slate-950/50 p-5"><p className="text-sm font-bold text-white">Log the defects you find</p><p className="mt-1 text-xs leading-relaxed text-slate-500">Interact with the checkout first. Select each issue you can reproduce.</p><div className="mt-5 space-y-3">{activeBugTask.defects.map((finding) => <button disabled={bugHuntFinished} key={finding} onClick={() => toggleFinding(finding)} className={cn('w-full rounded-xl border p-3 text-left text-sm transition-all disabled:cursor-not-allowed', loggedFindings.includes(finding) ? 'border-emerald-300 bg-emerald-300/10 text-emerald-100' : 'border-white/10 text-slate-400 hover:border-cyan-300/50 hover:text-white')}><span className="mr-2">{loggedFindings.includes(finding) ? '✓' : '○'}</span>{finding}</button>)}</div>{bugHuntScore === 3 && !bugHuntFinished && <motion.p initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="mt-4 rounded-xl bg-emerald-400/15 p-3 text-sm font-semibold text-emerald-100">All issues found. Loading the next task…</motion.p>}{bugHuntFinished && <p className="mt-4 rounded-xl bg-emerald-400/15 p-3 text-sm font-semibold text-emerald-100">Bug Hunt complete — all unique checkout tasks were finished.</p>}</div>
             </div>
           </div>
           <div className="qa-terminal rounded-[2rem] border border-white/10 p-5 shadow-2xl md:p-8">
-            <div className="mb-8 flex items-center gap-2 border-b border-white/10 pb-5"><span className="h-3 w-3 rounded-full bg-rose-400" /><span className="h-3 w-3 rounded-full bg-amber-300" /><span className="h-3 w-3 rounded-full bg-emerald-400" /><span className="ml-3 font-mono text-[10px] tracking-[0.18em] text-slate-500">INCIDENT_QUEUE // {String(scenarioIndex + 1).padStart(2, '0')} OF {String(qaScenarios.length).padStart(2, '0')}</span><div className="ml-auto hidden gap-1 sm:flex">{qaScenarios.map((_, index) => <span key={index} className={cn('h-1.5 w-7 rounded-full transition-colors', index === scenarioIndex ? 'bg-cyan-300' : 'bg-white/10')} />)}</div></div>
+            <div className="mb-8 flex items-center gap-2 border-b border-white/10 pb-5"><span className="h-3 w-3 rounded-full bg-rose-400" /><span className="h-3 w-3 rounded-full bg-amber-300" /><span className="h-3 w-3 rounded-full bg-emerald-400" /><span className="ml-3 font-mono text-[10px] tracking-[0.18em] text-slate-500">{incidentFinished ? 'INCIDENT_QUEUE // COMPLETE' : `INCIDENT_QUEUE // ${String(scenarioIndex + 1).padStart(2, '0')} OF ${String(qaScenarios.length).padStart(2, '0')}`}</span><div className="ml-auto hidden gap-1 sm:flex">{qaScenarios.map((_, index) => <span key={index} className={cn('h-1.5 w-7 rounded-full transition-colors', incidentFinished || index === scenarioIndex ? 'bg-cyan-300' : 'bg-white/10')} />)}</div></div>
             <AnimatePresence mode="wait"><motion.div key={scenarioIndex} initial={{ opacity: 0, x: 18, filter: 'blur(5px)' }} animate={{ opacity: 1, x: 0, filter: 'blur(0px)' }} exit={{ opacity: 0, x: -18, filter: 'blur(5px)' }} transition={{ duration: 0.32 }} className="grid gap-8 md:grid-cols-[1.2fr_.8fr] md:items-center">
               <div>
                 <div className="mb-4 flex items-center gap-2 text-amber-300"><AlertTriangle className="h-5 w-5" /><span className="font-mono text-xs font-bold tracking-widest">LIVE SCENARIO</span></div>
@@ -652,10 +678,10 @@ const App = () => {
               <div className="rounded-2xl border border-white/10 bg-slate-950/60 p-5">
                 <p className="text-sm font-bold text-white">Your triage decision</p>
                 <p className="mt-5 text-xs font-bold uppercase tracking-widest text-slate-500">Severity</p>
-                <div className="mt-2 grid grid-cols-3 gap-2">{['Low', 'Medium', 'High'].map((level) => <button disabled={triageResult === 'correct'} key={level} onClick={() => { setSeverity(level); setTriageResult(''); }} className={cn('rounded-lg border px-2 py-2 text-xs font-bold transition-all disabled:cursor-not-allowed', severity === level ? 'border-cyan-300 bg-cyan-300 text-slate-950' : 'border-white/10 text-slate-400 hover:border-white/40')}>{level}</button>)}</div>
+                <div className="mt-2 grid grid-cols-3 gap-2">{['Low', 'Medium', 'High'].map((level) => <button disabled={triageResult === 'correct' || incidentFinished} key={level} onClick={() => { setSeverity(level); setTriageResult(''); }} className={cn('rounded-lg border px-2 py-2 text-xs font-bold transition-all disabled:cursor-not-allowed', severity === level ? 'border-cyan-300 bg-cyan-300 text-slate-950' : 'border-white/10 text-slate-400 hover:border-white/40')}>{level}</button>)}</div>
                 <p className="mt-5 text-xs font-bold uppercase tracking-widest text-slate-500">Priority</p>
-                <div className="mt-2 grid grid-cols-3 gap-2">{['Normal', 'High', 'Urgent'].map((level) => <button disabled={triageResult === 'correct'} key={level} onClick={() => { setPriority(level); setTriageResult(''); }} className={cn('rounded-lg border px-2 py-2 text-xs font-bold transition-all disabled:cursor-not-allowed', priority === level ? 'border-cyan-300 bg-cyan-300 text-slate-950' : 'border-white/10 text-slate-400 hover:border-white/40')}>{level}</button>)}</div>
-                <button disabled={!severity || !priority || triageResult === 'correct'} onClick={checkTriage} className="mt-6 w-full rounded-xl bg-white py-3 text-sm font-black text-slate-950 transition-transform hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-30">{triageResult === 'correct' ? 'NEXT INCIDENT LOADING…' : 'VERIFY DECISION'}</button>
+                <div className="mt-2 grid grid-cols-3 gap-2">{['Normal', 'High', 'Urgent'].map((level) => <button disabled={triageResult === 'correct' || incidentFinished} key={level} onClick={() => { setPriority(level); setTriageResult(''); }} className={cn('rounded-lg border px-2 py-2 text-xs font-bold transition-all disabled:cursor-not-allowed', priority === level ? 'border-cyan-300 bg-cyan-300 text-slate-950' : 'border-white/10 text-slate-400 hover:border-white/40')}>{level}</button>)}</div>
+                <button disabled={!severity || !priority || triageResult === 'correct' || incidentFinished} onClick={checkTriage} className="mt-6 w-full rounded-xl bg-white py-3 text-sm font-black text-slate-950 transition-transform hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-30">{incidentFinished ? 'ALL INCIDENTS COMPLETE' : triageResult === 'correct' ? 'NEXT INCIDENT LOADING…' : 'VERIFY DECISION'}</button>
                 <AnimatePresence mode="wait">{triageResult && <motion.div key={triageResult} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className={cn('mt-4 rounded-xl p-3 text-sm', triageResult === 'correct' ? 'bg-emerald-400/15 text-emerald-200' : 'bg-amber-400/15 text-amber-100')}>
                   {triageResult === 'correct' ? `Correct. ${activeScenario.explanation} Loading the next incident…` : `Review it: ${activeScenario.explanation} I would classify this as ${activeScenario.severity} severity and ${activeScenario.priority} priority.`}
                 </motion.div>}</AnimatePresence>
