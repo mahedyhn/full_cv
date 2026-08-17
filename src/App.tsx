@@ -23,7 +23,9 @@ import {
   Command,
   Search,
   X,
-  ArrowUpRight
+  ArrowUpRight,
+  Activity,
+  Play
 } from 'lucide-react';
 
 const GithubIcon = ({ className }: { className?: string }) => (
@@ -104,6 +106,9 @@ const App = () => {
   const [scenarioIndex, setScenarioIndex] = useState(0);
   const [isCommandOpen, setIsCommandOpen] = useState(false);
   const [commandQuery, setCommandQuery] = useState('');
+  const [qaMode, setQaMode] = useState<'functional' | 'api' | 'performance'>('functional');
+  const [isTestRunning, setIsTestRunning] = useState(false);
+  const [testRunStatus, setTestRunStatus] = useState<'idle' | 'passed'>('idle');
   const { scrollYProgress } = useScroll();
   const progressScale = useSpring(scrollYProgress, { stiffness: 110, damping: 26, restDelta: 0.001 });
 
@@ -277,6 +282,19 @@ const App = () => {
     }
   };
   const activeScenario = qaScenarios[scenarioIndex];
+  const qaModes = {
+    functional: { label: 'Functional', code: 'UI-204', title: 'Checkout journey', metric: '12 / 12', metricLabel: 'checks passed', checks: ['Cart total recalculated', 'Promo code validated', 'Payment confirmation received'], color: 'cyan' },
+    api: { label: 'API', code: 'API-188', title: 'Order service contract', metric: '200 OK', metricLabel: 'response verified', checks: ['Schema contract valid', 'Auth scope accepted', 'Payload persisted'], color: 'violet' },
+    performance: { label: 'Performance', code: 'LOAD-76', title: 'Payment endpoint under load', metric: '284 ms', metricLabel: 'p95 response time', checks: ['500 virtual users', '0.02% error rate', 'Stable throughput'], color: 'amber' }
+  };
+  const activeQaMode = qaModes[qaMode];
+
+  const runTestSimulation = () => {
+    if (isTestRunning) return;
+    setIsTestRunning(true);
+    setTestRunStatus('idle');
+    window.setTimeout(() => { setIsTestRunning(false); setTestRunStatus('passed'); }, 1450);
+  };
   const commandItems = [
     { label: 'About me', hint: 'PROFILE', href: '#about' },
     { label: 'Technical expertise', hint: 'SKILLS', href: '#skills' },
@@ -459,6 +477,31 @@ const App = () => {
                 </div>
               </motion.div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* QA Flight Deck */}
+      <section className="qa-deck-section py-24 px-4">
+        <div className="max-w-6xl mx-auto">
+          <div className="mb-12 max-w-2xl">
+            <p className="text-xs font-black tracking-[0.25em] text-cyan-300">THE QA FLIGHT DECK</p>
+            <h2 className="mt-3 text-4xl font-black tracking-tight text-white md:text-5xl">See how I test<br /><span className="text-cyan-300">from every angle.</span></h2>
+            <p className="mt-5 text-lg leading-relaxed text-slate-400">Choose a testing lens and run a miniature QA simulation. Each one mirrors the real checks I use to turn risky releases into confident launches.</p>
+          </div>
+          <div className="qa-deck-grid rounded-[2rem] border border-white/10 p-5 md:p-8">
+            <div className="flex flex-col">
+              <div className="grid grid-cols-3 gap-2 rounded-2xl bg-white/5 p-1.5">{(Object.keys(qaModes) as Array<keyof typeof qaModes>).map((mode) => <button key={mode} onClick={() => { setQaMode(mode); setTestRunStatus('idle'); }} className={cn('rounded-xl px-2 py-3 text-xs font-bold transition-all', qaMode === mode ? 'bg-white text-slate-950 shadow-lg' : 'text-slate-400 hover:text-white')}>{qaModes[mode].label}</button>)}</div>
+              <div className="mt-8 flex items-center gap-3"><span className={cn('qa-mode-dot', `qa-dot-${activeQaMode.color}`)} /><div><p className="font-mono text-[10px] font-bold tracking-[.2em] text-slate-500">TEST RUN / {activeQaMode.code}</p><h3 className="mt-1 text-xl font-bold text-white">{activeQaMode.title}</h3></div></div>
+              <div className="mt-8 space-y-4">{activeQaMode.checks.map((check, index) => <motion.div key={`${qaMode}-${check}`} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: index * .08 }} className="flex items-center gap-3 text-sm text-slate-300"><span className="qa-check-number">0{index + 1}</span>{check}<CheckCircle2 className="ml-auto h-4 w-4 text-emerald-400" /></motion.div>)}</div>
+              <button onClick={runTestSimulation} disabled={isTestRunning} className="qa-run-button mt-auto"><span className={isTestRunning ? 'qa-running-spinner' : ''}>{isTestRunning ? <Activity className="h-4 w-4" /> : <Play className="h-4 w-4 fill-current" />}</span>{isTestRunning ? 'Running checks…' : testRunStatus === 'passed' ? 'Run again' : 'Run test simulation'}</button>
+            </div>
+            <div className={cn('qa-visualizer', `qa-visualizer-${activeQaMode.color}`, isTestRunning && 'is-running')}>
+              <div className="qa-visualizer-top"><span className="flex gap-1"><i /><i /><i /></span><span>{activeQaMode.code} / LIVE</span><span className="qa-live-indicator">ONLINE</span></div>
+              <div className="qa-radar"><div className="qa-radar-ring ring-one" /><div className="qa-radar-ring ring-two" /><div className="qa-radar-ring ring-three" /><div className="qa-radar-cross" /><div className="qa-radar-sweep" /><span className="qa-radar-point point-one" /><span className="qa-radar-point point-two" /><span className="qa-radar-point point-three" /><div className="qa-radar-core"><Bug className="h-6 w-6" /></div></div>
+              <div className="qa-metric"><div><p>{activeQaMode.metric}</p><span>{activeQaMode.metricLabel}</span></div><div className="qa-metric-orbit" /></div>
+              <AnimatePresence>{testRunStatus === 'passed' && !isTestRunning && <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="qa-pass-toast"><CheckCircle2 className="h-4 w-4" /> Test suite passed</motion.div>}</AnimatePresence>
+            </div>
           </div>
         </div>
       </section>
