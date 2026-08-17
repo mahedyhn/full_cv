@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import mhImage from "./utils/mh.JPG";
 import { 
   Mail, 
   Phone, 
@@ -211,8 +212,9 @@ const App = () => {
           >
             <div className="w-32 h-32 md:w-40 md:h-40 rounded-3xl overflow-hidden shadow-2xl ring-4 ring-white">
               {/* Placeholder for the user's photo from the CV */}
+              
               <img 
-                src="utils/2--.JPG" 
+                src={mhImage}
                 alt="MD. MAHEDY HASAN NAIEM"
                 className="w-full h-full object-cover"
               />
@@ -446,9 +448,10 @@ const App = () => {
                 <span className="text-xs font-bold text-slate-500 ml-4 uppercase tracking-widest">Mahedy_Hasan_Naiem_CV.pdf</span>
               </div>
               <a 
-                href="https://drive.google.com/file/d/1EZtUivvBdJDjme7UtjFDofoxnqxM8NjV/view?usp=sharing/" 
-                download 
-                className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200"
+               href="https://drive.google.com/file/d/1VNbp2TUehz00myhDRB67pgjUPCKPRTIv/view?usp=sharing"
+  target="_blank"
+  rel="noopener noreferrer"
+  className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200"
               >
                 <Download className="w-4 h-4" />
                 Download PDF
@@ -456,8 +459,8 @@ const App = () => {
             </div>
             <div className="aspect-[1/1.4] w-full bg-slate-200 relative">
               {/* Replace the src with actual PDF link when uploaded */}
-              <iframe 
-                src="https://drive.google.com/file/d/1VNbp2TUehz00myhDRB67pgjUPCKPRTIv/view?usp=sharing" 
+              <iframe
+  src="https://drive.google.com/file/d/1EZtUivvBdJDjme7UtjFDofoxnqxM8NjV/preview"
                 className="w-full h-full border-none"
                 title="Resume Preview"
               ></iframe>
