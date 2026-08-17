@@ -348,7 +348,7 @@ const App = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-blue-100">
+    <div id="top" className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-blue-100">
       <AnimatePresence>{isBooting && <QualityBoot complete={() => setIsBooting(false)} />}</AnimatePresence>
       <AnimatePresence>{isCommandOpen && <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="command-backdrop" onMouseDown={() => setIsCommandOpen(false)}>
         <motion.div role="dialog" aria-modal="true" aria-label="Portfolio command palette" initial={{ opacity: 0, y: -24, scale: .96 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -12, scale: .98 }} transition={{ type: 'spring', damping: 24, stiffness: 310 }} className="command-palette" onMouseDown={(event) => event.stopPropagation()}>
@@ -362,13 +362,15 @@ const App = () => {
       {/* Navigation */}
       <nav className="fixed top-0 w-full bg-white/80 backdrop-blur-md z-50 border-b border-slate-200">
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-          <motion.span 
+          <motion.a 
+            href="#top"
+            aria-label="Go to homepage"
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent"
+            className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent hover:opacity-80 transition-opacity"
           >
             MAHEDY.QA
-          </motion.span>
+          </motion.a>
           <div className="hidden md:flex space-x-8 text-sm font-medium text-slate-600">
             <a href="#about" className="hover:text-blue-600 transition-colors">About</a>
             <a href="#skills" className="hover:text-blue-600 transition-colors">Skills</a>
@@ -858,7 +860,7 @@ const App = () => {
       <footer className="py-12 px-4 border-t border-slate-200">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex flex-col items-center md:items-start">
-            <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">MAHEDY.QA</span>
+            <a href="#top" aria-label="Go to homepage" className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent hover:opacity-80 transition-opacity">MAHEDY.QA</a>
             <p className="text-slate-500 text-sm mt-2">© 2026 MD. MAHEDY HASAN NAIEM. All rights reserved.</p>
           </div>
           <div className="flex gap-6">
