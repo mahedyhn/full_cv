@@ -424,7 +424,7 @@ const App = () => {
             transition={{ delay: 0.1 }}
             className="text-xl md:text-2xl font-semibold text-blue-600 mb-8"
           >
-            Junior Software Quality Assurance Engineer
+            Software Quality Assurance Engineer
           </motion.p>
 
           <motion.div 
