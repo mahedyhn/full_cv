@@ -1,4 +1,4 @@
-import { FormEvent, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 import mhImage from "./utils/mh.JPG";
 import { 
   Mail, 
@@ -31,13 +31,45 @@ const LinkedinIcon = ({ className }: { className?: string }) => (
     <path fillRule="evenodd" d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" clipRule="evenodd" />
   </svg>
 );
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useScroll, useSpring } from 'framer-motion';
 import { cn } from './utils/cn';
+
+const QualityBoot = ({ complete }: { complete: () => void }) => {
+  const [progress, setProgress] = useState(0);
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      setProgress((current) => {
+        if (current >= 100) return current;
+        const next = Math.min(current + (current < 76 ? 8 : 4), 100);
+        if (next === 100) window.setTimeout(complete, 360);
+        return next;
+      });
+    }, 115);
+    return () => window.clearInterval(timer);
+  }, [complete]);
+  const status = progress < 30 ? "Loading test environment" : progress < 76 ? "Checking experience modules" : progress < 100 ? "Verifying interface" : "All systems ready";
+  return (
+    <motion.div exit={{ y: "-100%", transition: { duration: 0.72, ease: [0.76, 0, 0.24, 1] } }} className="boot-screen">
+      <div className="boot-grid" /><div className="boot-orb boot-orb-one" /><div className="boot-orb boot-orb-two" />
+      <div className="relative z-10 w-full max-w-md px-7">
+        <motion.div initial={{ opacity: 0, scale: 0.75 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5 }} className="boot-mark"><CheckCircle2 className="w-9 h-9" strokeWidth={2.4} /></motion.div>
+        <p className="mt-9 text-xs font-bold tracking-[0.34em] text-blue-300">QUALITY ASSURANCE PORTFOLIO</p>
+        <h1 className="mt-3 text-4xl font-black tracking-tight text-white sm:text-5xl">SYSTEM<br /><span className="text-blue-400">CHECK</span></h1>
+        <div className="mt-10 flex items-end justify-between font-mono text-xs text-slate-400"><span className="boot-status"><span className="boot-pulse" />{status}</span><span>{String(progress).padStart(3, '0')}%</span></div>
+        <div className="mt-3 h-2 overflow-hidden rounded-full border border-white/10 bg-white/5 p-[2px]"><motion.div className="h-full rounded-full bg-gradient-to-r from-blue-500 via-cyan-300 to-white" animate={{ width: `${progress}%` }} transition={{ ease: "easeOut", duration: 0.18 }} /></div>
+        <div className="mt-7 flex justify-between font-mono text-[10px] tracking-[0.16em] text-slate-500"><span>UI / UX</span><span>API</span><span>DATABASE</span><span>READY</span></div>
+      </div>
+    </motion.div>
+  );
+};
 
 const App = () => {
   const [activeProjectTab, setActiveProjectTab] = useState<'sqa' | 'dev'>('sqa');
   const [contactForm, setContactForm] = useState({ name: '', email: '', message: '' });
   const [formStatus, setFormStatus] = useState('');
+  const [isBooting, setIsBooting] = useState(true);
+  const { scrollYProgress } = useScroll();
+  const progressScale = useSpring(scrollYProgress, { stiffness: 110, damping: 26, restDelta: 0.001 });
 
   const contactInfo = {
     email: "mehedyhasan78600@gmail.com",
@@ -189,6 +221,9 @@ const App = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-blue-100">
+      <AnimatePresence>{isBooting && <QualityBoot complete={() => setIsBooting(false)} />}</AnimatePresence>
+      <motion.div className="scroll-progress" style={{ scaleX: progressScale }} />
+      <div className="scroll-rail" aria-hidden="true"><span>SCROLL TO EXPLORE</span><div /><span>01—06</span></div>
       {/* Navigation */}
       <nav className="fixed top-0 w-full bg-white/80 backdrop-blur-md z-50 border-b border-slate-200">
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
@@ -217,7 +252,7 @@ const App = () => {
       </nav>
 
       {/* Hero Section */}
-      <section className="pt-32 pb-20 px-4">
+      <section className="hero-section pt-32 pb-20 px-4">
         <div className="max-w-6xl mx-auto flex flex-col items-center text-center">
           <motion.div 
             initial={{ opacity: 0, scale: 0.9 }}

@@ -1,1 +1,86 @@
 @import "tailwindcss";
+
+html { scroll-behavior: smooth; }
+
+body { overflow-x: hidden; }
+
+.scroll-progress {
+  position: fixed;
+  z-index: 100;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  transform-origin: 0%;
+  background: linear-gradient(90deg, #2563eb, #22d3ee, #4f46e5);
+  box-shadow: 0 0 15px rgba(59, 130, 246, .8);
+}
+
+.hero-section {
+  position: relative;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% -20%, rgba(96, 165, 250, .22), transparent 45%);
+}
+
+.hero-section::before,
+.hero-section::after {
+  content: "";
+  position: absolute;
+  border: 1px solid rgba(59, 130, 246, .16);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.hero-section::before { width: 46rem; height: 46rem; top: -31rem; left: calc(50% - 23rem); animation: orbit-pulse 7s ease-in-out infinite; }
+.hero-section::after { width: 32rem; height: 32rem; top: -23rem; left: calc(50% - 16rem); animation: orbit-pulse 7s ease-in-out infinite reverse; }
+
+.boot-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: #07111f;
+}
+
+.boot-grid {
+  position: absolute;
+  inset: 0;
+  opacity: .36;
+  background-image: linear-gradient(rgba(96, 165, 250, .16) 1px, transparent 1px), linear-gradient(90deg, rgba(96, 165, 250, .16) 1px, transparent 1px);
+  background-size: 42px 42px;
+  mask-image: radial-gradient(circle at center, black, transparent 74%);
+  animation: grid-drift 4s linear infinite;
+}
+
+.boot-orb { position: absolute; border-radius: 50%; filter: blur(4px); opacity: .58; }
+.boot-orb-one { width: 23rem; height: 23rem; background: #123b8a; top: -10rem; left: -8rem; animation: float-orb 8s ease-in-out infinite; }
+.boot-orb-two { width: 18rem; height: 18rem; background: #0e7490; bottom: -9rem; right: -6rem; animation: float-orb 9s ease-in-out infinite reverse; }
+.boot-mark { display: grid; width: 5rem; height: 5rem; place-items: center; border: 1px solid rgba(147, 197, 253, .7); border-radius: 1.35rem; color: #bfdbfe; box-shadow: 0 0 0 10px rgba(59, 130, 246, .08), 0 0 45px rgba(59, 130, 246, .36); }
+.boot-status { display: inline-flex; align-items: center; gap: .5rem; }
+.boot-pulse { width: .45rem; height: .45rem; border-radius: 50%; background: #38bdf8; box-shadow: 0 0 10px #38bdf8; animation: boot-pulse 1s ease-in-out infinite; }
+
+.scroll-rail { position: fixed; z-index: 40; right: 1.3rem; top: 50%; display: none; align-items: center; gap: .65rem; transform: translateY(-50%) rotate(90deg); transform-origin: right center; color: #94a3b8; font: 700 9px/1 ui-monospace, monospace; letter-spacing: .16em; pointer-events: none; }
+.scroll-rail div { width: 4.5rem; height: 1px; background: #cbd5e1; }
+
+@keyframes grid-drift { to { background-position: 42px 42px; } }
+@keyframes float-orb { 50% { transform: translate(30px, 45px) scale(1.15); } }
+@keyframes boot-pulse { 50% { opacity: .25; transform: scale(.65); } }
+@keyframes orbit-pulse { 50% { transform: scale(1.08); opacity: .45; } }
+@keyframes section-enter { from { opacity: .1; transform: translateY(70px) scale(.985); } 42%, to { opacity: 1; transform: none; } }
+
+@media (min-width: 1280px) { .scroll-rail { display: flex; } }
+
+@supports (animation-timeline: view()) {
+  main > section, #about, #skills, #experience, #projects, #resume, #contact {
+    animation: section-enter linear both;
+    animation-timeline: view();
+    animation-range: entry 8% cover 38%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; }
+}
