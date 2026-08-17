@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { FormEvent, useState } from 'react';
 import mhImage from "./utils/mh.JPG";
 import { 
   Mail, 
@@ -36,6 +36,8 @@ import { cn } from './utils/cn';
 
 const App = () => {
   const [activeProjectTab, setActiveProjectTab] = useState<'sqa' | 'dev'>('sqa');
+  const [contactForm, setContactForm] = useState({ name: '', email: '', message: '' });
+  const [formStatus, setFormStatus] = useState('');
 
   const contactInfo = {
     email: "mehedyhasan78600@gmail.com",
@@ -172,6 +174,18 @@ const App = () => {
     { title: "Web Dev PHP with Laravel (BASIS)", provider: "SEIP", period: "3 Months" },
     { title: "Professional English Communication", provider: "WSDA New Zealand", period: "Jan—Mar 2023" }
   ];
+
+  const handleContactSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const subject = encodeURIComponent(`Portfolio enquiry from ${contactForm.name}`);
+    const body = encodeURIComponent(
+      `Name: ${contactForm.name}\nEmail: ${contactForm.email}\n\nMessage:\n${contactForm.message}`
+    );
+
+    window.location.href = `mailto:${contactInfo.email}?subject=${subject}&body=${body}`;
+    setFormStatus('Your email app is opening with your message ready to send.');
+    setContactForm({ name: '', email: '', message: '' });
+  };
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-blue-100">
@@ -537,24 +551,49 @@ const App = () => {
                 </div>
               </div>
               
-              <form className="space-y-4">
+              <form className="space-y-4" onSubmit={handleContactSubmit}>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <label className="text-sm font-semibold ml-1">Name</label>
-                    <input type="text" placeholder="Your Name" className="w-full bg-white/10 border border-white/20 rounded-2xl px-6 py-4 outline-none focus:bg-white/20 focus:border-white transition-all placeholder:text-blue-200" />
+                    <input
+                      type="text"
+                      name="name"
+                      value={contactForm.name}
+                      onChange={(event) => setContactForm({ ...contactForm, name: event.target.value })}
+                      placeholder="Your Name"
+                      required
+                      className="w-full bg-white/10 border border-white/20 rounded-2xl px-6 py-4 outline-none focus:bg-white/20 focus:border-white transition-all placeholder:text-blue-200"
+                    />
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-semibold ml-1">Email</label>
-                    <input type="email" placeholder="Your Email" className="w-full bg-white/10 border border-white/20 rounded-2xl px-6 py-4 outline-none focus:bg-white/20 focus:border-white transition-all placeholder:text-blue-200" />
+                    <input
+                      type="email"
+                      name="email"
+                      value={contactForm.email}
+                      onChange={(event) => setContactForm({ ...contactForm, email: event.target.value })}
+                      placeholder="Your Email"
+                      required
+                      className="w-full bg-white/10 border border-white/20 rounded-2xl px-6 py-4 outline-none focus:bg-white/20 focus:border-white transition-all placeholder:text-blue-200"
+                    />
                   </div>
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-semibold ml-1">Message</label>
-                  <textarea rows={4} placeholder="Your Message" className="w-full bg-white/10 border border-white/20 rounded-2xl px-6 py-4 outline-none focus:bg-white/20 focus:border-white transition-all placeholder:text-blue-200 resize-none"></textarea>
+                  <textarea
+                    rows={4}
+                    name="message"
+                    value={contactForm.message}
+                    onChange={(event) => setContactForm({ ...contactForm, message: event.target.value })}
+                    placeholder="Your Message"
+                    required
+                    className="w-full bg-white/10 border border-white/20 rounded-2xl px-6 py-4 outline-none focus:bg-white/20 focus:border-white transition-all placeholder:text-blue-200 resize-none"
+                  />
                 </div>
                 <button type="submit" className="w-full bg-white text-blue-600 py-4 rounded-2xl font-bold hover:bg-blue-50 transition-colors shadow-lg">
                   Send Message
                 </button>
+                {formStatus && <p className="text-center text-sm font-medium text-blue-100" role="status">{formStatus}</p>}
               </form>
             </div>
           </div>
