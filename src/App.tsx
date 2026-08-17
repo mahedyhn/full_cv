@@ -19,7 +19,11 @@ import {
   CheckCircle2,
   GraduationCap,
   AlertTriangle,
-  RotateCcw
+  RotateCcw,
+  Command,
+  Search,
+  X,
+  ArrowUpRight
 } from 'lucide-react';
 
 const GithubIcon = ({ className }: { className?: string }) => (
@@ -98,6 +102,8 @@ const App = () => {
   const [priority, setPriority] = useState('');
   const [triageResult, setTriageResult] = useState<'correct' | 'review' | ''>('');
   const [scenarioIndex, setScenarioIndex] = useState(0);
+  const [isCommandOpen, setIsCommandOpen] = useState(false);
+  const [commandQuery, setCommandQuery] = useState('');
   const { scrollYProgress } = useScroll();
   const progressScale = useSpring(scrollYProgress, { stiffness: 110, damping: 26, restDelta: 0.001 });
 
@@ -271,10 +277,40 @@ const App = () => {
     }
   };
   const activeScenario = qaScenarios[scenarioIndex];
+  const commandItems = [
+    { label: 'About me', hint: 'PROFILE', href: '#about' },
+    { label: 'Technical expertise', hint: 'SKILLS', href: '#skills' },
+    { label: 'Professional journey', hint: 'EXPERIENCE', href: '#experience' },
+    { label: 'Featured projects', hint: 'PROJECTS', href: '#projects' },
+    { label: 'Try the QA Lab', hint: 'INTERACTIVE', href: '#qa-lab' },
+    { label: 'Download my CV', hint: 'RESUME', href: '#resume' },
+    { label: 'Get in touch', hint: 'CONTACT', href: '#contact' },
+    { label: 'Open GitHub profile', hint: 'EXTERNAL', href: contactInfo.github, external: true }
+  ];
+  const filteredCommands = commandItems.filter((item) => `${item.label} ${item.hint}`.toLowerCase().includes(commandQuery.toLowerCase()));
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault();
+        setIsCommandOpen((open) => !open);
+      }
+      if (event.key === 'Escape') setIsCommandOpen(false);
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, []);
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-blue-100">
       <AnimatePresence>{isBooting && <QualityBoot complete={() => setIsBooting(false)} />}</AnimatePresence>
+      <AnimatePresence>{isCommandOpen && <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="command-backdrop" onMouseDown={() => setIsCommandOpen(false)}>
+        <motion.div role="dialog" aria-modal="true" aria-label="Portfolio command palette" initial={{ opacity: 0, y: -24, scale: .96 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -12, scale: .98 }} transition={{ type: 'spring', damping: 24, stiffness: 310 }} className="command-palette" onMouseDown={(event) => event.stopPropagation()}>
+          <div className="command-search"><Search className="h-5 w-5 text-cyan-300" /><input autoFocus value={commandQuery} onChange={(event) => setCommandQuery(event.target.value)} placeholder="Jump anywhere…" aria-label="Search portfolio" /><button onClick={() => setIsCommandOpen(false)} aria-label="Close command palette"><X className="h-5 w-5" /></button></div>
+          <div className="command-list"><p>QUICK NAVIGATION</p>{filteredCommands.length ? filteredCommands.map((item) => <a key={item.href} href={item.href} target={item.external ? '_blank' : undefined} rel={item.external ? 'noopener noreferrer' : undefined} onClick={() => { setIsCommandOpen(false); setCommandQuery(''); }}><span className="command-item-icon"><Command className="h-3.5 w-3.5" /></span><span className="flex-1"><strong>{item.label}</strong><small>{item.hint}</small></span><ArrowUpRight className="h-4 w-4 text-slate-500" /></a>) : <div className="command-empty">No destinations found.</div>}</div>
+          <div className="command-footer"><span><kbd>ESC</kbd> close</span><span><kbd>↵</kbd> open link</span></div>
+        </motion.div>
+      </motion.div>}</AnimatePresence>
       <motion.div className="scroll-progress" style={{ scaleX: progressScale }} />
       <div className="scroll-rail" aria-hidden="true"><span>SCROLL TO EXPLORE</span><div /><span>01—06</span></div>
       {/* Navigation */}
@@ -296,6 +332,7 @@ const App = () => {
             <a href="#resume" className="hover:text-blue-600 transition-colors">Resume</a>
             <a href="#contact" className="hover:text-blue-600 transition-colors">Contact</a>
           </div>
+          <button onClick={() => setIsCommandOpen(true)} className="hidden lg:flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-500 shadow-sm transition-colors hover:border-blue-300 hover:text-blue-600" aria-label="Open quick navigation"><Command className="h-4 w-4" /><span>Quick jump</span><kbd className="rounded border border-slate-200 px-1.5 py-0.5 text-[10px]">⌘K</kbd></button>
           <a 
             href="#contact" 
             className="bg-blue-600 text-white px-5 py-2 rounded-full text-sm font-semibold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200"

@@ -51,6 +51,44 @@ body { overflow-x: hidden; }
 
 .qa-terminal { position: relative; background: linear-gradient(135deg, rgba(15, 23, 42, .93), rgba(2, 8, 23, .98)); }
 
+.command-backdrop {
+  position: fixed;
+  z-index: 150;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  padding: 12vh 1rem 1rem;
+  background: rgba(2, 8, 23, .68);
+  backdrop-filter: blur(12px);
+}
+
+.command-palette {
+  width: min(100%, 39rem);
+  height: fit-content;
+  overflow: hidden;
+  border: 1px solid rgba(148, 163, 184, .23);
+  border-radius: 1.5rem;
+  background: linear-gradient(145deg, rgba(20, 32, 53, .98), rgba(5, 12, 25, .98));
+  box-shadow: 0 32px 100px rgba(0, 0, 0, .5), 0 0 0 1px rgba(56, 189, 248, .08) inset;
+}
+
+.command-search { display: flex; align-items: center; gap: .8rem; padding: 1.15rem 1.2rem; border-bottom: 1px solid rgba(148, 163, 184, .16); }
+.command-search input { min-width: 0; flex: 1; outline: none; border: 0; background: transparent; color: #f8fafc; font-size: 1.05rem; }
+.command-search input::placeholder { color: #64748b; }
+.command-search button { color: #94a3b8; transition: color .15s; }
+.command-search button:hover { color: #fff; }
+.command-list { padding: .75rem; }
+.command-list > p { margin: .35rem .65rem .6rem; color: #64748b; font-size: .62rem; font-weight: 800; letter-spacing: .18em; }
+.command-list > a { display: flex; align-items: center; gap: .75rem; border-radius: .85rem; padding: .65rem .75rem; color: #e2e8f0; transition: background .15s, transform .15s; }
+.command-list > a:hover { transform: translateX(3px); background: rgba(56, 189, 248, .12); }
+.command-item-icon { display: grid; width: 1.8rem; height: 1.8rem; place-items: center; border: 1px solid rgba(148, 163, 184, .17); border-radius: .55rem; color: #67e8f9; background: rgba(14, 116, 144, .15); }
+.command-list strong, .command-list small { display: block; }
+.command-list strong { font-size: .86rem; }
+.command-list small { margin-top: .08rem; color: #64748b; font: 700 .6rem/1 ui-monospace, monospace; letter-spacing: .1em; }
+.command-empty { padding: 2rem; text-align: center; color: #94a3b8; font-size: .9rem; }
+.command-footer { display: flex; justify-content: space-between; border-top: 1px solid rgba(148, 163, 184, .14); padding: .8rem 1.2rem; color: #64748b; font-size: .7rem; }
+.command-footer kbd { margin-right: .25rem; border: 1px solid rgba(148, 163, 184, .28); border-radius: .28rem; padding: .1rem .28rem; color: #cbd5e1; font-family: ui-monospace, monospace; }
+
 .boot-screen {
   position: fixed;
   inset: 0;
