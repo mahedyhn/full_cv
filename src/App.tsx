@@ -65,6 +65,30 @@ const QualityBoot = ({ complete }: { complete: () => void }) => {
   );
 };
 
+const qaScenarios = [
+  {
+    title: "Payment succeeds, but no order is created.",
+    description: "A customer completes payment at checkout and receives a successful gateway confirmation. The cart clears, but no order appears in their account or the admin panel.",
+    module: "CHECKOUT", status: "REPRODUCED", impact: "REVENUE AT RISK",
+    severity: "High", priority: "Urgent",
+    explanation: "Payment without an order directly affects revenue and customer trust, so it needs an urgent fix."
+  },
+  {
+    title: "A dashboard total is wrong after applying a date filter.",
+    description: "The sales dashboard still displays the all-time revenue total after a user applies a custom date range. Individual rows correctly update to the selected range.",
+    module: "REPORTING", status: "REPRODUCED", impact: "DECISIONS AFFECTED",
+    severity: "Medium", priority: "High",
+    explanation: "The core product still works, but incorrect financial reporting can lead to poor business decisions and should be prioritized."
+  },
+  {
+    title: "The profile avatar does not update until refresh.",
+    description: "After uploading a valid profile image, the upload succeeds and persists correctly. The old avatar remains visible until the user refreshes the browser.",
+    module: "PROFILE UI", status: "REPRODUCED", impact: "VISUAL ONLY",
+    severity: "Low", priority: "Normal",
+    explanation: "This is a visible usability issue with a simple workaround. No data is lost and the primary flow succeeds."
+  }
+];
+
 const App = () => {
   const [activeProjectTab, setActiveProjectTab] = useState<'sqa' | 'dev'>('sqa');
   const [contactForm, setContactForm] = useState({ name: '', email: '', message: '' });
@@ -73,6 +97,7 @@ const App = () => {
   const [severity, setSeverity] = useState('');
   const [priority, setPriority] = useState('');
   const [triageResult, setTriageResult] = useState<'correct' | 'review' | ''>('');
+  const [scenarioIndex, setScenarioIndex] = useState(0);
   const { scrollYProgress } = useScroll();
   const progressScale = useSpring(scrollYProgress, { stiffness: 110, damping: 26, restDelta: 0.001 });
 
@@ -136,6 +161,7 @@ const App = () => {
     {
       title: "E-Commerce Test Automation",
       tech: "Playwright, End-to-End Testing",
+      links: [{ label: "GitHub Repository", url: "https://github.com/mahedyhn/grameenphone-playwright-automation" }],
       details: [
         "Built end-to-end automated test coverage for key e-commerce user journeys.",
         "Applied Playwright to validate user-facing flows consistently across test runs."
@@ -144,6 +170,7 @@ const App = () => {
     {
       title: "API & Performance Testing",
       tech: "Postman, REST APIs, JMeter",
+      links: [{ label: "Crypto Wallet API", url: "https://github.com/mahedyhn/crypto-wallet-api-testing" }, { label: "Restful Booker API", url: "https://github.com/mahedyhn/Restful-booker-api-testing" }, { label: "JMeter Performance", url: "https://github.com/mahedyhn/api-performance-testing-jmeter" }],
       details: [
         "Tested Crypto Wallet and Restful Booker APIs, validating requests, responses, and API behaviour.",
         "Performed API performance testing using JMeter."
@@ -152,6 +179,7 @@ const App = () => {
     {
       title: "QuickHire Job Portal — Manual QA Testing",
       tech: "Excel, Chrome DevTools, Firefox, Edge, Jira",
+      links: [{ label: "GitHub Repository", url: "https://github.com/mahedyhn/QuickHire-Manual-Testing" }],
       details: [
         "Designed 42 test cases across 6 modules covering functional, UI, negative, boundary value, & browser compatibility testing.",
         "Prepared comprehensive FNA Test Plan (13 sections), Mind Map, Test Scenarios, Bug Report, Test Metrics.",
@@ -161,6 +189,7 @@ const App = () => {
     {
       title: "Otec Website — Bechakena Admin Panel Testing",
       tech: "Manual Testing, Jira",
+      links: [{ label: "GitHub Repository", url: "https://github.com/mahedyhn/Qtec-Website-Testing-Bechakena-Admin-Panel" }],
       details: [
         "Conducted manual testing of the Bechakena e-commerce admin panel, covering product management, order processing, and user role management.",
         "Performed UI/UX validation and identified functional defects; documented bugs with severity and priority."
@@ -169,6 +198,7 @@ const App = () => {
     {
       title: "Grameenphone Website — Manual Testing",
       tech: "Manual Testing, Excel",
+      links: [{ label: "GitHub Repository", url: "https://github.com/mahedyhn/grameenphone_testing" }],
       details: [
         "Designed and executed 50+ test cases covering Recharge, Packages, and User Authentication modules.",
         "Performed negative testing on input fields (Mobile Number & Amount) and verified OTP validation logic.",
@@ -181,6 +211,7 @@ const App = () => {
     {
       title: "QuickHire — Full-Stack AI Recruitment App",
       tech: "React.js, Node.js, Express, MongoDB, OpenAI API, Material UI",
+      links: [{ label: "GitHub Repository", url: "https://github.com/mahedyhn/quickhire" }],
       details: [
         "Developed an intelligent recruitment solution automating the hiring process using AI.",
         "Key features: automated resume parsing, AI-driven candidate ranking, and real-time messaging system."
@@ -189,6 +220,7 @@ const App = () => {
     {
       title: "User Management App",
       tech: "JavaScript (Full Stack)",
+      links: [{ label: "GitHub Repository", url: "https://github.com/mahedyhn/user-management-app" }],
       details: [
         "Built a full-stack user management application with complete CRUD operations and authentication workflows."
       ]
@@ -196,6 +228,7 @@ const App = () => {
     {
       title: "PHP/Laravel Projects",
       tech: "PHP, Laravel, MySQL, Bootstrap",
+      links: [{ label: "E-commerce", url: "https://github.com/mahedyhn/my_ecommerce" }, { label: "Newspaper", url: "https://github.com/mahedyhn/news_paper" }, { label: "Blog", url: "https://github.com/mahedyhn/our_blog" }, { label: "Rental", url: "https://github.com/mahedyhn/rental-website" }],
       details: [
         "Single Vendor E-commerce platform with product management, cart, and order processing.",
         "Newspaper website with article management, categories, and admin dashboard.",
@@ -225,8 +258,19 @@ const App = () => {
   };
 
   const checkTriage = () => {
-    setTriageResult(severity === 'High' && priority === 'Urgent' ? 'correct' : 'review');
+    const scenario = qaScenarios[scenarioIndex];
+    const isCorrect = severity === scenario.severity && priority === scenario.priority;
+    setTriageResult(isCorrect ? 'correct' : 'review');
+    if (isCorrect) {
+      window.setTimeout(() => {
+        setScenarioIndex((current) => (current + 1) % qaScenarios.length);
+        setSeverity('');
+        setPriority('');
+        setTriageResult('');
+      }, 1800);
+    }
   };
+  const activeScenario = qaScenarios[scenarioIndex];
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-blue-100">
@@ -472,10 +516,14 @@ const App = () => {
                       </li>
                     ))}
                   </ul>
-                  <button className="flex items-center gap-2 text-sm font-bold text-slate-900 group">
-                    View Details 
-                    <ExternalLink className="w-4 h-4 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                  </button>
+                  <div className="flex flex-wrap gap-x-4 gap-y-2 border-t border-slate-100 pt-5">
+                    {project.links.map((link) => (
+                      <a key={link.url} href={link.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm font-bold text-slate-900 group hover:text-blue-600 transition-colors">
+                        {project.links.length === 1 ? 'View on GitHub' : link.label}
+                        <ExternalLink className="w-4 h-4 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                      </a>
+                    ))}
+                  </div>
                 </div>
               ))}
             </motion.div>
@@ -492,27 +540,27 @@ const App = () => {
             <p className="mx-auto mt-4 max-w-xl text-slate-400">A small look into how I turn product problems into clear, actionable QA decisions.</p>
           </div>
           <div className="qa-terminal rounded-[2rem] border border-white/10 p-5 shadow-2xl md:p-8">
-            <div className="mb-8 flex items-center gap-2 border-b border-white/10 pb-5"><span className="h-3 w-3 rounded-full bg-rose-400" /><span className="h-3 w-3 rounded-full bg-amber-300" /><span className="h-3 w-3 rounded-full bg-emerald-400" /><span className="ml-3 font-mono text-[10px] tracking-[0.18em] text-slate-500">BUG_REPORT_042</span></div>
-            <div className="grid gap-8 md:grid-cols-[1.2fr_.8fr] md:items-center">
+            <div className="mb-8 flex items-center gap-2 border-b border-white/10 pb-5"><span className="h-3 w-3 rounded-full bg-rose-400" /><span className="h-3 w-3 rounded-full bg-amber-300" /><span className="h-3 w-3 rounded-full bg-emerald-400" /><span className="ml-3 font-mono text-[10px] tracking-[0.18em] text-slate-500">INCIDENT_QUEUE // {String(scenarioIndex + 1).padStart(2, '0')} OF {String(qaScenarios.length).padStart(2, '0')}</span><div className="ml-auto hidden gap-1 sm:flex">{qaScenarios.map((_, index) => <span key={index} className={cn('h-1.5 w-7 rounded-full transition-colors', index === scenarioIndex ? 'bg-cyan-300' : 'bg-white/10')} />)}</div></div>
+            <AnimatePresence mode="wait"><motion.div key={scenarioIndex} initial={{ opacity: 0, x: 18, filter: 'blur(5px)' }} animate={{ opacity: 1, x: 0, filter: 'blur(0px)' }} exit={{ opacity: 0, x: -18, filter: 'blur(5px)' }} transition={{ duration: 0.32 }} className="grid gap-8 md:grid-cols-[1.2fr_.8fr] md:items-center">
               <div>
                 <div className="mb-4 flex items-center gap-2 text-amber-300"><AlertTriangle className="h-5 w-5" /><span className="font-mono text-xs font-bold tracking-widest">LIVE SCENARIO</span></div>
-                <h3 className="text-2xl font-bold text-white">Payment succeeds, but no order is created.</h3>
-                <p className="mt-4 leading-relaxed text-slate-400">A customer completes payment at checkout and receives a successful gateway confirmation. The cart clears, but no order appears in their account or the admin panel.</p>
-                <div className="mt-6 grid grid-cols-3 gap-3 font-mono text-[10px] text-slate-400"><span className="rounded-lg border border-white/10 bg-white/5 px-3 py-2">MODULE: CHECKOUT</span><span className="rounded-lg border border-white/10 bg-white/5 px-3 py-2">STATUS: REPRODUCED</span><span className="rounded-lg border border-white/10 bg-white/5 px-3 py-2">USERS: AFFECTED</span></div>
+                <h3 className="text-2xl font-bold text-white">{activeScenario.title}</h3>
+                <p className="mt-4 leading-relaxed text-slate-400">{activeScenario.description}</p>
+                <div className="mt-6 grid grid-cols-3 gap-3 font-mono text-[10px] text-slate-400"><span className="rounded-lg border border-white/10 bg-white/5 px-3 py-2">MODULE: {activeScenario.module}</span><span className="rounded-lg border border-white/10 bg-white/5 px-3 py-2">STATUS: {activeScenario.status}</span><span className="rounded-lg border border-white/10 bg-white/5 px-3 py-2">IMPACT: {activeScenario.impact}</span></div>
               </div>
               <div className="rounded-2xl border border-white/10 bg-slate-950/60 p-5">
                 <p className="text-sm font-bold text-white">Your triage decision</p>
                 <p className="mt-5 text-xs font-bold uppercase tracking-widest text-slate-500">Severity</p>
-                <div className="mt-2 grid grid-cols-3 gap-2">{['Low', 'Medium', 'High'].map((level) => <button key={level} onClick={() => { setSeverity(level); setTriageResult(''); }} className={cn('rounded-lg border px-2 py-2 text-xs font-bold transition-all', severity === level ? 'border-cyan-300 bg-cyan-300 text-slate-950' : 'border-white/10 text-slate-400 hover:border-white/40')}>{level}</button>)}</div>
+                <div className="mt-2 grid grid-cols-3 gap-2">{['Low', 'Medium', 'High'].map((level) => <button disabled={triageResult === 'correct'} key={level} onClick={() => { setSeverity(level); setTriageResult(''); }} className={cn('rounded-lg border px-2 py-2 text-xs font-bold transition-all disabled:cursor-not-allowed', severity === level ? 'border-cyan-300 bg-cyan-300 text-slate-950' : 'border-white/10 text-slate-400 hover:border-white/40')}>{level}</button>)}</div>
                 <p className="mt-5 text-xs font-bold uppercase tracking-widest text-slate-500">Priority</p>
-                <div className="mt-2 grid grid-cols-3 gap-2">{['Normal', 'High', 'Urgent'].map((level) => <button key={level} onClick={() => { setPriority(level); setTriageResult(''); }} className={cn('rounded-lg border px-2 py-2 text-xs font-bold transition-all', priority === level ? 'border-cyan-300 bg-cyan-300 text-slate-950' : 'border-white/10 text-slate-400 hover:border-white/40')}>{level}</button>)}</div>
-                <button disabled={!severity || !priority} onClick={checkTriage} className="mt-6 w-full rounded-xl bg-white py-3 text-sm font-black text-slate-950 transition-transform hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-30">VERIFY DECISION</button>
+                <div className="mt-2 grid grid-cols-3 gap-2">{['Normal', 'High', 'Urgent'].map((level) => <button disabled={triageResult === 'correct'} key={level} onClick={() => { setPriority(level); setTriageResult(''); }} className={cn('rounded-lg border px-2 py-2 text-xs font-bold transition-all disabled:cursor-not-allowed', priority === level ? 'border-cyan-300 bg-cyan-300 text-slate-950' : 'border-white/10 text-slate-400 hover:border-white/40')}>{level}</button>)}</div>
+                <button disabled={!severity || !priority || triageResult === 'correct'} onClick={checkTriage} className="mt-6 w-full rounded-xl bg-white py-3 text-sm font-black text-slate-950 transition-transform hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-30">{triageResult === 'correct' ? 'NEXT INCIDENT LOADING…' : 'VERIFY DECISION'}</button>
                 <AnimatePresence mode="wait">{triageResult && <motion.div key={triageResult} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className={cn('mt-4 rounded-xl p-3 text-sm', triageResult === 'correct' ? 'bg-emerald-400/15 text-emerald-200' : 'bg-amber-400/15 text-amber-100')}>
-                  {triageResult === 'correct' ? 'Exactly. This is high severity and urgent priority: revenue and customer trust are immediately at risk.' : 'Review it: payment without an order directly impacts revenue. I would classify this as High severity and Urgent priority.'}
+                  {triageResult === 'correct' ? `Correct. ${activeScenario.explanation} Loading the next incident…` : `Review it: ${activeScenario.explanation} I would classify this as ${activeScenario.severity} severity and ${activeScenario.priority} priority.`}
                 </motion.div>}</AnimatePresence>
-                {triageResult && <button onClick={() => { setSeverity(''); setPriority(''); setTriageResult(''); }} className="mx-auto mt-3 flex items-center gap-1 text-xs font-bold text-slate-500 hover:text-white"><RotateCcw className="h-3 w-3" /> Try again</button>}
+                {triageResult === 'review' && <button onClick={() => { setSeverity(''); setPriority(''); setTriageResult(''); }} className="mx-auto mt-3 flex items-center gap-1 text-xs font-bold text-slate-500 hover:text-white"><RotateCcw className="h-3 w-3" /> Try again</button>}
               </div>
-            </div>
+            </motion.div></AnimatePresence>
           </div>
         </div>
       </section>
