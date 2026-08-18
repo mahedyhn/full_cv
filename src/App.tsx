@@ -447,16 +447,16 @@ const App = () => {
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl w-full">
-            <div className="flex items-center gap-3 justify-center p-4 bg-white rounded-2xl shadow-sm border border-slate-100">
-              <Mail className="w-5 h-5 text-blue-500" />
+            <a href={`mailto:${contactInfo.email}`} className="flex items-center gap-3 justify-center p-4 bg-white rounded-2xl shadow-sm border border-slate-100 hover:shadow-md hover:border-blue-200 transition-all cursor-pointer">
+              <Mail className="w-5 h-5 text-blue-500 flex-shrink-0" />
               <span className="text-sm font-medium">{contactInfo.email}</span>
-            </div>
-            <div className="flex items-center gap-3 justify-center p-4 bg-white rounded-2xl shadow-sm border border-slate-100">
-              <Phone className="w-5 h-5 text-blue-500" />
+            </a>
+            <a href={`tel:${contactInfo.phone}`} className="flex items-center gap-3 justify-center p-4 bg-white rounded-2xl shadow-sm border border-slate-100 hover:shadow-md hover:border-blue-200 transition-all cursor-pointer">
+              <Phone className="w-5 h-5 text-blue-500 flex-shrink-0" />
               <span className="text-sm font-medium">{contactInfo.phone}</span>
-            </div>
+            </a>
             <div className="flex items-center gap-3 justify-center p-4 bg-white rounded-2xl shadow-sm border border-slate-100">
-              <MapPin className="w-5 h-5 text-blue-500" />
+              <MapPin className="w-5 h-5 text-blue-500 flex-shrink-0" />
               <span className="text-sm font-medium">Dhaka, Bangladesh</span>
             </div>
           </div>
