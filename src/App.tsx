@@ -1,21 +1,21 @@
 import { FormEvent, useEffect, useState } from 'react';
 import mhImage from "./utils/mh.JPG";
-import { 
-  Mail, 
-  Phone, 
-  MapPin, 
-  ExternalLink, 
-  Download, 
-  ChevronRight, 
-  Code2, 
-  Bug, 
-  Terminal, 
-  Database, 
-  FileText, 
-  User, 
-  Briefcase, 
-  Layers, 
-  Award, 
+import {
+  Mail,
+  Phone,
+  MapPin,
+  ExternalLink,
+  Download,
+  ChevronRight,
+  Code2,
+  Bug,
+  Terminal,
+  Database,
+  FileText,
+  User,
+  Briefcase,
+  Layers,
+  Award,
   CheckCircle2,
   GraduationCap,
   AlertTriangle,
@@ -41,6 +41,7 @@ const LinkedinIcon = ({ className }: { className?: string }) => (
 );
 import { motion, AnimatePresence, useScroll, useSpring } from 'framer-motion';
 import { cn } from './utils/cn';
+import BugReportGenerator from './components/BugReportGenerator';
 
 const QualityBoot = ({ complete }: { complete: () => void }) => {
   const [progress, setProgress] = useState(0);
@@ -322,13 +323,14 @@ const App = () => {
     performance: { label: 'Performance', code: 'LOAD-76', title: 'Payment endpoint under load', metric: '284 ms', metricLabel: 'p95 response time', checks: ['500 virtual users', '0.02% error rate', 'Stable throughput'], color: 'amber' }
   };
   const activeQaMode = qaModes[qaMode];
-  const runTestSimulation = () => {};
+  const runTestSimulation = () => { };
   const commandItems = [
     { label: 'About me', hint: 'PROFILE', href: '#about' },
     { label: 'Technical expertise', hint: 'SKILLS', href: '#skills' },
     { label: 'Professional journey', hint: 'EXPERIENCE', href: '#experience' },
     { label: 'Featured projects', hint: 'PROJECTS', href: '#projects' },
     { label: 'Try the QA Lab', hint: 'INTERACTIVE', href: '#qa-lab' },
+    { label: 'Generate bug reports', hint: 'AI TOOL', href: '#bug-generator' },
     { label: 'Download my CV', hint: 'RESUME', href: '#resume' },
     { label: 'Get in touch', hint: 'CONTACT', href: '#contact' },
     { label: 'Open GitHub profile', hint: 'EXTERNAL', href: contactInfo.github, external: true }
@@ -362,7 +364,7 @@ const App = () => {
       {/* Navigation */}
       <nav className="fixed top-0 w-full bg-white/80 backdrop-blur-md z-50 border-b border-slate-200">
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-          <motion.a 
+          <motion.a
             href="#top"
             aria-label="Go to homepage"
             initial={{ opacity: 0, x: -20 }}
@@ -377,12 +379,13 @@ const App = () => {
             <a href="#experience" className="hover:text-blue-600 transition-colors">Experience</a>
             <a href="#projects" className="hover:text-blue-600 transition-colors">Projects</a>
             <a href="#qa-lab" className="hover:text-blue-600 transition-colors">QA Lab</a>
+            <a href="#bug-generator" className="hover:text-blue-600 transition-colors">Bug Generator</a>
             <a href="#resume" className="hover:text-blue-600 transition-colors">Resume</a>
             <a href="#contact" className="hover:text-blue-600 transition-colors">Contact</a>
           </div>
           <button onClick={() => setIsCommandOpen(true)} className="hidden lg:flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-500 shadow-sm transition-colors hover:border-blue-300 hover:text-blue-600" aria-label="Open quick navigation"><Command className="h-4 w-4" /><span>Quick jump</span><kbd className="rounded border border-slate-200 px-1.5 py-0.5 text-[10px]">⌘K</kbd></button>
-          <a 
-            href="#contact" 
+          <a
+            href="#contact"
             className="bg-blue-600 text-white px-5 py-2 rounded-full text-sm font-semibold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200"
           >
             Hire Me
@@ -393,15 +396,15 @@ const App = () => {
       {/* Hero Section */}
       <section className="hero-section pt-32 pb-20 px-4">
         <div className="max-w-6xl mx-auto flex flex-col items-center text-center">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             className="relative mb-8"
           >
             <div className="w-32 h-32 md:w-40 md:h-40 rounded-3xl overflow-hidden shadow-2xl ring-4 ring-white">
               {/* Placeholder for the user's photo from the CV */}
-              
-              <img 
+
+              <img
                 src={mhImage}
                 alt="MD. MAHEDY HASAN NAIEM"
                 className="w-full h-full object-cover"
@@ -410,15 +413,15 @@ const App = () => {
             <div className="absolute -bottom-2 -right-2 bg-green-500 w-6 h-6 rounded-full border-4 border-white shadow-sm" title="Available for work"></div>
           </motion.div>
 
-          <motion.h1 
+          <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="text-4xl md:text-6xl font-extrabold text-slate-900 mb-4 tracking-tight"
           >
             MD. MAHEDY HASAN NAIEM
           </motion.h1>
-          
-          <motion.p 
+
+          <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
@@ -427,7 +430,7 @@ const App = () => {
             Software Quality Assurance Engineer
           </motion.p>
 
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
@@ -487,7 +490,7 @@ const App = () => {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {skills.map((skill, index) => (
-              <motion.div 
+              <motion.div
                 key={index}
                 whileHover={{ y: -5 }}
                 className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-all"
@@ -549,7 +552,7 @@ const App = () => {
             </div>
             <h2 className="text-3xl font-bold">Professional Journey</h2>
           </div>
-          
+
           <div className="space-y-12">
             {experiences.map((exp, index) => (
               <div key={index} className="relative pl-8 border-l-2 border-slate-700 pb-12 last:pb-0">
@@ -584,7 +587,7 @@ const App = () => {
           <div className="flex flex-col items-center mb-12 text-center">
             <h2 className="text-4xl font-bold mb-6">Featured Projects</h2>
             <div className="flex p-1 bg-slate-100 rounded-2xl w-full max-w-md">
-              <button 
+              <button
                 onClick={() => setActiveProjectTab('sqa')}
                 className={cn(
                   "flex-1 py-3 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2",
@@ -594,7 +597,7 @@ const App = () => {
                 <Bug className="w-4 h-4" />
                 SQA Projects
               </button>
-              <button 
+              <button
                 onClick={() => setActiveProjectTab('dev')}
                 className={cn(
                   "flex-1 py-3 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2",
@@ -608,7 +611,7 @@ const App = () => {
           </div>
 
           <AnimatePresence mode="wait">
-            <motion.div 
+            <motion.div
               key={activeProjectTab}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -653,21 +656,6 @@ const App = () => {
             <h2 className="mt-3 text-4xl font-bold text-white">Test it. Break it. Report it.</h2>
             <p className="mx-auto mt-4 max-w-xl text-slate-400">Use the live checkout below like a QA tester, identify the defects, then log your findings.</p>
           </div>
-          <div className="bug-hunt mb-8 rounded-[2rem] border border-cyan-300/15 p-5 md:p-7">
-            <div className="mb-6 flex flex-wrap items-center justify-between gap-3"><div><p className="font-mono text-[10px] font-black tracking-[.2em] text-cyan-300">BUG HUNT // SANDBOX</p><h3 className="mt-1 text-xl font-bold text-white">Mini checkout under test</h3></div><div className="rounded-full border border-cyan-300/20 bg-cyan-300/10 px-4 py-2 font-mono text-xs text-cyan-100">TASK {bugTaskIndex + 1} / {bugHuntTasks.length} · FINDINGS: {bugHuntScore} / 3</div></div>
-            <div className="grid gap-6 lg:grid-cols-[1.25fr_.75fr]">
-              <div className="bug-checkout rounded-2xl p-5">
-                <div className="flex items-center justify-between border-b border-slate-700 pb-4"><span className="font-bold text-white">Your cart</span><span className="text-xs text-slate-400">Only {activeBugTask.stock} items left</span></div>
-                <div className="flex items-center justify-between py-5"><div><p className="font-semibold text-white">{activeBugTask.product}</p><p className="text-sm text-slate-400">${activeBugTask.price}.00 each</p></div><div className="flex items-center gap-3 rounded-lg border border-slate-600 px-2 py-1"><button disabled={bugHuntFinished} onClick={() => setCheckoutQuantity(Math.max(1, checkoutQuantity - 1))} aria-label="Decrease quantity">−</button><span className="w-4 text-center font-bold text-white">{checkoutQuantity}</span><button disabled={bugHuntFinished} onClick={() => setCheckoutQuantity(checkoutQuantity + 1)} aria-label="Increase quantity">+</button></div></div>
-                <div className="flex gap-2 border-t border-slate-700 pt-4"><input readOnly value={activeBugTask.code} className="min-w-0 flex-1 rounded-lg border border-slate-600 bg-slate-900 px-3 py-2 text-sm text-slate-300" /><button disabled={bugHuntFinished} onClick={() => setPromoApplied(true)} className="rounded-lg bg-cyan-300 px-4 text-xs font-black text-slate-950">APPLY</button></div>
-                {promoApplied && <p className="mt-2 text-xs font-semibold text-emerald-300">{activeBugTask.promo}</p>}
-                <div className="mt-5 flex justify-between border-t border-slate-700 pt-4 font-bold text-white"><span>Total</span><span>${activeBugTask.price * checkoutQuantity}.00</span></div>
-                <button disabled={bugHuntFinished} onClick={() => setPaymentComplete(true)} className="mt-5 w-full rounded-xl bg-white py-3 text-sm font-black text-slate-950">PAY ${activeBugTask.price * checkoutQuantity}.00</button>
-                {paymentComplete && <p className="mt-3 rounded-lg bg-emerald-400/10 p-3 text-sm text-emerald-200">Payment successful. Thank you for your order!</p>}
-              </div>
-              <div className="rounded-2xl border border-white/10 bg-slate-950/50 p-5"><p className="text-sm font-bold text-white">Log the defects you find</p><p className="mt-1 text-xs leading-relaxed text-slate-500">Interact with the checkout first. Select each issue you can reproduce.</p><div className="mt-5 space-y-3">{activeBugTask.defects.map((finding) => <button disabled={bugHuntFinished} key={finding} onClick={() => toggleFinding(finding)} className={cn('w-full rounded-xl border p-3 text-left text-sm transition-all disabled:cursor-not-allowed', loggedFindings.includes(finding) ? 'border-emerald-300 bg-emerald-300/10 text-emerald-100' : 'border-white/10 text-slate-400 hover:border-cyan-300/50 hover:text-white')}><span className="mr-2">{loggedFindings.includes(finding) ? '✓' : '○'}</span>{finding}</button>)}</div>{bugHuntScore === 3 && !bugHuntFinished && <motion.p initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="mt-4 rounded-xl bg-emerald-400/15 p-3 text-sm font-semibold text-emerald-100">All issues found. Loading the next task…</motion.p>}{bugHuntFinished && <p className="mt-4 rounded-xl bg-emerald-400/15 p-3 text-sm font-semibold text-emerald-100">Bug Hunt complete — all unique checkout tasks were finished.</p>}</div>
-            </div>
-          </div>
           <div className="qa-terminal rounded-[2rem] border border-white/10 p-5 shadow-2xl md:p-8">
             <div className="mb-8 flex items-center gap-2 border-b border-white/10 pb-5"><span className="h-3 w-3 rounded-full bg-rose-400" /><span className="h-3 w-3 rounded-full bg-amber-300" /><span className="h-3 w-3 rounded-full bg-emerald-400" /><span className="ml-3 font-mono text-[10px] tracking-[0.18em] text-slate-500">{incidentFinished ? 'INCIDENT_QUEUE // COMPLETE' : `INCIDENT_QUEUE // ${String(scenarioIndex + 1).padStart(2, '0')} OF ${String(qaScenarios.length).padStart(2, '0')}`}</span><div className="ml-auto hidden gap-1 sm:flex">{qaScenarios.map((_, index) => <span key={index} className={cn('h-1.5 w-7 rounded-full transition-colors', incidentFinished || index === scenarioIndex ? 'bg-cyan-300' : 'bg-white/10')} />)}</div></div>
             <AnimatePresence mode="wait"><motion.div key={scenarioIndex} initial={{ opacity: 0, x: 18, filter: 'blur(5px)' }} animate={{ opacity: 1, x: 0, filter: 'blur(0px)' }} exit={{ opacity: 0, x: -18, filter: 'blur(5px)' }} transition={{ duration: 0.32 }} className="grid gap-8 md:grid-cols-[1.2fr_.8fr] md:items-center">
@@ -694,6 +682,11 @@ const App = () => {
         </div>
       </section>
 
+      {/* Bug Report Generator Section */}
+      <section id="bug-generator" className="py-20 px-4 bg-white">
+        <BugReportGenerator />
+      </section>
+
       {/* CV / Resume Section */}
       <section id="resume" className="py-20 bg-blue-50">
         <div className="max-w-5xl mx-auto px-4">
@@ -717,11 +710,11 @@ const App = () => {
                 </div>
                 <span className="text-xs font-bold text-slate-500 ml-4 uppercase tracking-widest">Mahedy_Hasan_Naiem_CV.pdf</span>
               </div>
-              <a 
-               href="https://drive.google.com/file/d/1VNbp2TUehz00myhDRB67pgjUPCKPRTIv/view?usp=sharing"
-  target="_blank"
-  rel="noopener noreferrer"
-  className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200"
+              <a
+                href="https://drive.google.com/file/d/1VNbp2TUehz00myhDRB67pgjUPCKPRTIv/view?usp=sharing"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200"
               >
                 <Download className="w-4 h-4" />
                 Download PDF
@@ -730,7 +723,7 @@ const App = () => {
             <div className="aspect-[1/1.4] w-full bg-slate-200 relative">
               {/* Replace the src with actual PDF link when uploaded */}
               <iframe
-  src="https://drive.google.com/file/d/1VNbp2TUehz00myhDRB67pgjUPCKPRTIv/preview"
+                src="https://drive.google.com/file/d/1VNbp2TUehz00myhDRB67pgjUPCKPRTIv/preview"
                 className="w-full h-full border-none"
                 title="Resume Preview"
               ></iframe>
@@ -777,14 +770,14 @@ const App = () => {
           <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-[3rem] p-8 md:p-16 text-white shadow-2xl relative overflow-hidden">
             <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32 blur-3xl"></div>
             <div className="absolute bottom-0 left-0 w-64 h-64 bg-indigo-500/20 rounded-full -ml-32 -mb-32 blur-3xl"></div>
-            
+
             <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12">
               <div>
                 <h2 className="text-4xl md:text-5xl font-bold mb-6">Let's connect and work together!</h2>
                 <p className="text-blue-100 text-lg mb-12 max-w-md">
                   I'm currently looking for new opportunities in Software Quality Assurance. Whether you have a question or just want to say hi, I'll try my best to get back to you!
                 </p>
-                
+
                 <div className="space-y-6">
                   <a href={`mailto:${contactInfo.email}`} className="flex items-center gap-4 group">
                     <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center group-hover:bg-white group-hover:text-blue-600 transition-all">
@@ -806,7 +799,7 @@ const App = () => {
                   </a>
                 </div>
               </div>
-              
+
               <form className="space-y-4" onSubmit={handleContactSubmit}>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
