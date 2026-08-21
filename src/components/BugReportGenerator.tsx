@@ -150,7 +150,7 @@ const BugReportGenerator = () => {
             expectedBehavior: generateExpectedBehavior(text),
             actualBehavior: generateActualBehavior(text),
             severity,
-            priority: priorityMap[severity],
+            priority,
             affectedModules: affectedModules.length > 0 ? affectedModules : ['General'],
             environment: 'Chrome/Firefox, macOS/Windows/Linux, Latest version'
         };
