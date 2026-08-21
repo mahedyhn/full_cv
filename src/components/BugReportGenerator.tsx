@@ -51,33 +51,77 @@ const BugReportGenerator = () => {
         }
     };
 
+    const pickHighestMatch = <T extends string>(
+        text: string,
+        keywordMap: Record<T, string[]>,
+        rank: Record<T, number>,
+        fallback: T
+    ): T => {
+        let selected = fallback;
+        let selectedRank = rank[fallback];
+
+        (Object.entries(keywordMap) as [T, string[]][]).forEach(([level, keywords]) => {
+            if (keywords.some(kw => text.includes(kw)) && rank[level] > selectedRank) {
+                selected = level;
+                selectedRank = rank[level];
+            }
+        });
+
+        return selected;
+    };
+
     // Transform simple description into structured bug report
     const transformTextToBugReport = (text: string): BugReport => {
         const lowerText = text.toLowerCase();
 
-        // Analyze severity and priority based on keywords
-        const severityKeywords = {
-            'blocker': ['crash', 'not working', 'broken', 'unable to', 'cannot'],
-            'critical': ['loses data', 'security', 'payment', 'revenue', 'loss'],
-            'major': ['wrong', 'incorrect', 'error', 'fails', 'doesn\'t work'],
-            'minor': ['slow', 'layout', 'display', 'cosmetic'],
-            'trivial': ['typo', 'spacing', 'color', 'minor text']
+        const severityKeywords: Record<BugReport['severity'], string[]> = {
+            Blocker: ['crash', 'not working', 'broken', 'unable to', 'cannot'],
+            Critical: ['loses data', 'data loss', 'security', 'payment', 'revenue', 'loss'],
+            Major: ['wrong', 'incorrect', 'error', 'fails', 'failed', 'bug'],
+            Minor: ['slow', 'layout', 'display', 'cosmetic', 'lag', 'freeze'],
+            Trivial: ['typo', 'spacing', 'color', 'minor text', 'misspell']
         };
 
-        let severity: BugReport['severity'] = 'Major';
-        Object.entries(severityKeywords).forEach(([sev, keywords]) => {
-            if (keywords.some(kw => lowerText.includes(kw))) {
-                severity = sev as BugReport['severity'];
-            }
-        });
-
-        const priorityMap: Record<BugReport['severity'], BugReport['priority']> = {
-            'Blocker': 'Highest',
-            'Critical': 'High',
-            'Major': 'High',
-            'Minor': 'Medium',
-            'Trivial': 'Low'
+        const severityRank: Record<BugReport['severity'], number> = {
+            Blocker: 5,
+            Critical: 4,
+            Major: 3,
+            Minor: 2,
+            Trivial: 1
         };
+
+        const severity = pickHighestMatch(lowerText, severityKeywords, severityRank, 'Major');
+
+        // Priority is urgency of the fix — independent from severity (impact)
+        const priorityKeywords: Record<BugReport['priority'], string[]> = {
+            Highest: ['urgent', 'asap', 'p0', 'production', 'cannot', 'unable to', 'crash', 'security', 'payment', 'revenue', 'data loss', 'loses data'],
+            High: ['not working', "doesn't work", 'doesnt work', 'broken', 'fails', 'failed', 'error', 'login'],
+            Medium: ['wrong', 'incorrect', 'slow', 'lag', 'hang', 'freeze'],
+            Low: ['layout', 'display', 'cosmetic', 'ui'],
+            Lowest: ['typo', 'spacing', 'color', 'misspell']
+        };
+
+        const priorityRank: Record<BugReport['priority'], number> = {
+            Highest: 5,
+            High: 4,
+            Medium: 3,
+            Low: 2,
+            Lowest: 1
+        };
+
+        const severityDefaultPriority: Record<BugReport['severity'], BugReport['priority']> = {
+            Blocker: 'Highest',
+            Critical: 'Highest',
+            Major: 'High',
+            Minor: 'Medium',
+            Trivial: 'Low'
+        };
+
+        const keywordPriority = pickHighestMatch(lowerText, priorityKeywords, priorityRank, 'Medium');
+        const defaultPriority = severityDefaultPriority[severity];
+        const priority = priorityRank[keywordPriority] >= priorityRank[defaultPriority]
+            ? keywordPriority
+            : defaultPriority;
 
         // Extract potential modules affected
         const moduleKeywords: Record<string, string[]> = {
@@ -247,6 +291,28 @@ ENVIRONMENT: ${bugReport.environment}
         return icons[priority] || icons['Medium'];
     };
 
+    const getPriorityBgClass = (priority: string) => {
+        const classes: Record<string, string> = {
+            Highest: 'bg-gradient-to-br from-red-900/50 to-red-900/20 border-red-500/50',
+            High: 'bg-gradient-to-br from-orange-900/50 to-orange-900/20 border-orange-500/50',
+            Medium: 'bg-gradient-to-br from-purple-900/50 to-purple-900/20 border-purple-500/50',
+            Low: 'bg-gradient-to-br from-green-900/50 to-green-900/20 border-green-500/50',
+            Lowest: 'bg-gradient-to-br from-gray-900/50 to-gray-900/20 border-gray-500/50'
+        };
+        return classes[priority] || classes.Medium;
+    };
+
+    const getPriorityTextClass = (priority: string) => {
+        const classes: Record<string, string> = {
+            Highest: 'text-red-200',
+            High: 'text-orange-200',
+            Medium: 'text-purple-200',
+            Low: 'text-green-200',
+            Lowest: 'text-gray-200'
+        };
+        return classes[priority] || classes.Medium;
+    };
+
     return (
         <div className="relative min-h-screen w-full bg-gradient-to-br from-slate-900 via-indigo-900 to-slate-900 py-12 sm:py-16 px-4 sm:px-6 lg:px-8 overflow-hidden">
             {/* Animated Background Elements */}
@@ -402,12 +468,12 @@ ENVIRONMENT: ${bugReport.environment}
                                         <motion.div
                                             whileHover={{ scale: 1.02 }}
                                             whileTap={{ scale: 0.98 }}
-                                            className="p-4 rounded-lg sm:rounded-xl border-2 border-purple-500/50 bg-gradient-to-br from-purple-900/50 to-purple-900/20 backdrop-blur"
+                                            className={`p-4 rounded-lg sm:rounded-xl border-2 backdrop-blur ${getPriorityBgClass(bugReport.priority)}`}
                                         >
                                             <p className="text-xs font-bold text-white/70 uppercase tracking-widest mb-2">Priority</p>
                                             <div className="flex items-center gap-2 min-w-0">
                                                 {getPriorityIcon(bugReport.priority)}
-                                                <span className="text-lg sm:text-xl font-bold text-purple-200 truncate">{bugReport.priority}</span>
+                                                <span className={`text-lg sm:text-xl font-bold truncate ${getPriorityTextClass(bugReport.priority)}`}>{bugReport.priority}</span>
                                             </div>
                                         </motion.div>
 
