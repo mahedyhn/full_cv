@@ -711,7 +711,7 @@ const App = () => {
                 <span className="text-xs font-bold text-slate-500 ml-4 uppercase tracking-widest">Mahedy_Hasan_Naiem_CV.pdf</span>
               </div>
               <a
-                href="https://drive.google.com/file/d/1VNbp2TUehz00myhDRB67pgjUPCKPRTIv/view?usp=sharing"
+                href="https://drive.google.com/file/d/1hFsgHaud35iKryReTwJCLE8Wrve1qQFT/view?usp=sharing"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200"
@@ -723,7 +723,7 @@ const App = () => {
             <div className="aspect-[1/1.4] w-full bg-slate-200 relative">
               {/* Replace the src with actual PDF link when uploaded */}
               <iframe
-                src="https://drive.google.com/file/d/1VNbp2TUehz00myhDRB67pgjUPCKPRTIv/preview"
+                src="https://drive.google.com/file/d/1hFsgHaud35iKryReTwJCLE8Wrve1qQFT/preview"
                 className="w-full h-full border-none"
                 title="Resume Preview"
               ></iframe>
