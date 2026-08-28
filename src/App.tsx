@@ -687,7 +687,7 @@ const App = () => {
         <BugReportGenerator />
       </section>
 
-      {/* CV / Resume Section
+      {/* CV / Resume Section — DISABLED (commented out)
       <section id="resume" className="py-20 bg-blue-50">
         <div className="max-w-5xl mx-auto px-4">
           <div className="flex flex-col items-center text-center mb-12">
@@ -721,8 +721,8 @@ const App = () => {
               </a>
             </div>
             <div className="aspect-[1/1.4] w-full bg-slate-200 relative">
-              {/* Replace the src with actual PDF link when uploaded */}
-              {/* <iframe
+              {/* Replace the src with actual PDF link when uploaded *\/}
+              <iframe
                 src="https://drive.google.com/file/d/1hFsgHaud35iKryReTwJCLE8Wrve1qQFT/preview"
                 className="w-full h-full border-none"
                 title="Resume Preview"
@@ -735,8 +735,9 @@ const App = () => {
               </div>
             </div>
           </div>
-      //   </div>
-      // // </section> */} 
+        </div>
+      </section>
+      */}
 
       {/* Training & Certifications */}
       <section className="py-20 bg-white">
