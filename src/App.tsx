@@ -686,8 +686,8 @@ const App = () => {
       <section id="bug-generator" className="py-20 px-4 bg-white">
         <BugReportGenerator />
       </section>
-{/* 
-      {/* CV / Resume Section */}
+
+      {/* CV / Resume Section
       <section id="resume" className="py-20 bg-blue-50">
         <div className="max-w-5xl mx-auto px-4">
           <div className="flex flex-col items-center text-center mb-12">
@@ -722,7 +722,7 @@ const App = () => {
             </div>
             <div className="aspect-[1/1.4] w-full bg-slate-200 relative">
               {/* Replace the src with actual PDF link when uploaded */}
-              <iframe
+              {/* <iframe
                 src="https://drive.google.com/file/d/1hFsgHaud35iKryReTwJCLE8Wrve1qQFT/preview"
                 className="w-full h-full border-none"
                 title="Resume Preview"
@@ -735,8 +735,8 @@ const App = () => {
               </div>
             </div>
           </div>
-        </div>
-      </section> */}
+      //   </div>
+      // // </section> */} 
 
       {/* Training & Certifications */}
       <section className="py-20 bg-white">
@@ -762,7 +762,7 @@ const App = () => {
             ))}
           </div>
         </div>
-      </section>
+      </section> 
 
       {/* Contact Section */}
       <section id="contact" className="py-20 bg-slate-50">
