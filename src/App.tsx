@@ -686,7 +686,7 @@ const App = () => {
       <section id="bug-generator" className="py-20 px-4 bg-white">
         <BugReportGenerator />
       </section>
-
+{/* 
       {/* CV / Resume Section */}
       <section id="resume" className="py-20 bg-blue-50">
         <div className="max-w-5xl mx-auto px-4">
@@ -736,7 +736,7 @@ const App = () => {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* Training & Certifications */}
       <section className="py-20 bg-white">
