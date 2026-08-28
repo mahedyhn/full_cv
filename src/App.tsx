@@ -349,6 +349,21 @@ const App = () => {
     return () => window.removeEventListener('keydown', onKeyDown);
   }, []);
 
+  // Scroll to hash anchor after the boot screen finishes
+  useEffect(() => {
+    if (isBooting) return;
+    const hash = window.location.hash; // e.g. "#bug-generator"
+    if (!hash) return;
+    // Small delay so the boot exit animation has time to unmount
+    const timer = window.setTimeout(() => {
+      const target = document.querySelector(hash);
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 400);
+    return () => window.clearTimeout(timer);
+  }, [isBooting]);
+
   return (
     <div id="top" className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-blue-100">
       <AnimatePresence>{isBooting && <QualityBoot complete={() => setIsBooting(false)} />}</AnimatePresence>
